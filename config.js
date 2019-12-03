@@ -1,3 +1,7 @@
+//         anchor: [51.5113583, -0.3774002]
+//  minZoom: 16,
+// maxZoom: 16,
+
 module.exports = {
   title: "example",
   display_title: "example",
@@ -23,9 +27,9 @@ module.exports = {
   store: {
     app: {
       map: {
-        minZoom: 16,
-        maxZoom: 16,
-        anchor: [51.5113583, -0.3774002]
+        minZoom: 12,
+        maxZoom: 12,
+        anchor: [-41.244027, 170.2794254]
       }
     },
     ui: {
