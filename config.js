@@ -27,9 +27,11 @@ module.exports = {
   store: {
     app: {
       map: {
-        minZoom: 12,
-        maxZoom: 12,
-        anchor: [-41.244027, 170.2794254]
+        minZoom: 4,
+        maxZoom: 10,
+        // -39.8585203,172.9617603
+        // -42.056832,179.1998063
+        anchor: [-39.8585203, 174.9617603]
       }
     },
     ui: {
