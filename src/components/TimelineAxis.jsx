@@ -18,14 +18,14 @@ class TimelineAxis extends React.Component {
           .ticks(10)
           .tickPadding(5)
           .tickSize(this.props.dims.trackHeight)
-          .tickFormat(d3.timeFormat('%d %b'))
+          .tickFormat(d3.timeFormat('%Y'))
 
       this.x1 =
         d3.axisBottom(this.props.scaleX)
           .ticks(10)
           .tickPadding(this.props.dims.margin_top)
           .tickSize(0)
-          .tickFormat(d3.timeFormat('%H:%M'))
+          .tickFormat(d3.timeFormat('%b'))
 
       if (!this.state.isInitialized) this.setState({ isInitialized: true })
     }
@@ -52,12 +52,12 @@ class TimelineAxis extends React.Component {
           clipPath={`url(#clip)`}
           className={`axis xAxis`}
         />
-        <g
+        {<g
           ref={this.xAxis1Ref}
           transform={`translate(0, 105)`}
           clipPath={`url(#clip)`}
           className={`axis axisHourText`}
-        />
+        />}
       </React.Fragment>
     )
   }
