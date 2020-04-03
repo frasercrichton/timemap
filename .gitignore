@@ -2,6 +2,9 @@
 build/
 node_modules/
 dev.config.js
+tags
+tags.lock
+tags.temp
 
 src/\.DS_Store
 

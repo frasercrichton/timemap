@@ -13,7 +13,7 @@ const CardTimestamp = ({ timelabel, language, precision }) => {
       <div className='card-cell timestamp'>
         <p>
           <i className='material-icons left'>today</i>
-          {timelabel}{(precision !== '') ? ` - ${precision}` : ''}
+          {timelabel}{(precision && precision !== '') ? ` - ${precision}` : ''}
         </p>
       </div>
     )
