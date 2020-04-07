@@ -11,7 +11,7 @@ const defaultStyles = {
 }
 
 function MapNarratives ({ styles, onSelectNarrative, svg, narrative, narratives, projectPoint }) {
-  function getNarrativeStyle (narrativeId) {
+  function getNarrativeStyle(narrativeId) {
     const styleName = (narrativeId && narrativeId in styles)
       ? narrativeId
       : 'default'

@@ -120,4 +120,38 @@ a `config.js` file in timemap's root folder (explained in the next section).
 ]
 ```
 
+### UI Styling
+
+
+
+```
+map: {
+        minZoom: 5,
+        maxZoom: 15,
+        startZoom: 7,
+        maxBounds: [-41.244, 174.621],
+        bounds: null,
+        maxBounds: [[180, -180], [-180, 180]]
+         anchor: [-41.2442852, 174.6217707]
+   },
+```
+
+
+//state.ui.style.selectedEvents
+  //  selected: state.app.selected,
+  //     language: state.app.language,
+  //     timeline: state.app.timeline,
+  //     narrative: state.app.narrative
+//   this.props.event.type === 'Structure'
+
+//      bounds: null,
+  //    maxBounds: [[180, -180], [-180, 180]]
+    
+        // -39.8585203,172.9617603
+        // -42.056832,179.1998063
+        // Wellington: [-41.2442852, 174.6217707] 
+        //timeline.dimensions
+
+
+
 
