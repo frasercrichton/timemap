@@ -123,6 +123,17 @@ a `config.js` file in timemap's root folder (explained in the next section).
 ### UI Styling
 
 
+#### Anchor
+
+Screen Shot 2020-04-08 at 11.04.29 AM.png
+
+### Timeline
+
+![Timeline](timeline.png)
+
+the centre of the map
+
+![Tab Menu](tab-menu.png)
 
 ```
 map: {
@@ -154,4 +165,38 @@ map: {
 
 
 
-
+   timeline: {
+        zoomLevels: [
+          { label: 'All Years', duration: 9.461e+7 },
+          { label: '50 Years', duration: 2.628e+7 },
+          { label: '5 Years', duration: 2.628e+6 },
+          { label: '1 Year', duration: 525600 }
+        ],
+        range: ['1840-12-01T12:00:00', '2020-12-01T12:00:00'],
+        rangeLimits: ['1840-12-01T12:00:00', '2020-12-01T12:00:00']
+      },
+  
+    ui: {
+      style: {
+        categories:
+        {
+          'Legislation': '#939393',
+          'Child Welfare': '#bdbdbd',
+          'Psychiatric Care': '#545454',
+          'Mass Incarceration': '#F5F5F5'
+        },
+        narratives: {
+          default: {
+            stroke: 'none'
+          }
+        },
+        shapes: {
+          default: {
+            stroke: 'blue',
+            strokeWidth: 3,
+            opacity: 0.9
+          }
+        }
+      }
+    }
+  }
