@@ -1,10 +1,84 @@
 # User Interface Styling
 
 
+## The Time Map
 
-#### Anchor
+### Min and Max Map Zoom
+
+        minZoom: 5,
+        maxZoom: 15,
+
+Lower limit
+Upper limit
+startZoom
+
+### maxBounds
+
+### Anchor
 
 the centre of the map
+
+```
+map: {
+        minZoom: 5,
+        maxZoom: 15,
+        startZoom: 7,
+        maxBounds: [-41.244, 174.621],
+        bounds: null,
+        maxBounds: [[180, -180], [-180, 180]]
+         anchor: [-41.2442852, 174.6217707]
+   },
+```
+
+## categories
+
+colours
+
+CSS hex values, etc.)
+
+   ```
+    ui: {
+      style: {
+        categories:
+        {
+          'Legislation': '#939393',
+          'Child Welfare': 'red',
+          'Psychiatric Care': '#545454',
+          'Mass Incarceration': '#F5F5F5'
+        },
+        }
+      }
+    }
+  ```
+
+
+## Narratives
+
+      "Narratives compose events to reveal logical threads that emerge from them. Transition to narrative mode by selecting a narrative from the top left dashboard icon."
+        ],
+        "notation": "Combinations of colours indicate multiple events in a single location.",
+        "arrows": "Arrows indicate physical movement between events."
+    
+
+
+   ```
+    ui: {
+      style: {
+        narratives: {
+          default: {
+            stroke: 'none'
+          }
+        },
+        shapes: {
+          default: {
+            stroke: 'blue',
+            strokeWidth: 3,
+            opacity: 0.9
+          }
+        }
+      }
+    }
+  ```
 
 # Timeline
 
@@ -41,20 +115,6 @@ Range Limits
       },
 ```
 
-![Tab Menu](tab-menu.png)
-
-```
-map: {
-        minZoom: 5,
-        maxZoom: 15,
-        startZoom: 7,
-        maxBounds: [-41.244, 174.621],
-        bounds: null,
-        maxBounds: [[180, -180], [-180, 180]]
-         anchor: [-41.2442852, 174.6217707]
-   },
-```
-
 
 //state.ui.style.selectedEvents
   //  selected: state.app.selected,
@@ -66,30 +126,7 @@ map: {
 //      bounds: null,
   //    maxBounds: [[180, -180], [-180, 180]]
             //timeline.dimensions
-   ```
-    ui: {
-      style: {
-        categories:
-        {
-          'Legislation': '#939393',
-          'Child Welfare': '#bdbdbd',
-          'Psychiatric Care': '#545454',
-          'Mass Incarceration': '#F5F5F5'
-        },
-        narratives: {
-          default: {
-            stroke: 'none'
-          }
-        },
-        shapes: {
-          default: {
-            stroke: 'blue',
-            strokeWidth: 3,
-            opacity: 0.9
-          }
-        }
-      }
-    }
-  ```
 
   
+
+![Tab Menu](tab-menu.png)
