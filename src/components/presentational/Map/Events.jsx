@@ -1,6 +1,7 @@
 import React from 'react'
 import { Portal } from 'react-portal'
 import colors from '../../../common/global.js'
+import { getEventOpacity } from '../../../common/utilities'
 
 function MapEvents ({ getCategoryColor, categories, projectPoint, styleLocation, selected, narrative, onSelect, svg, locations }) {
   function getCoordinatesForPercent (radius, percent) {
@@ -33,7 +34,7 @@ function MapEvents ({ getCategoryColor, categories, projectPoint, styleLocation,
       fill: getCategoryColor(locCategory),
       stroke: colors.darkBackground,
       strokeWidth: 0,
-      fillOpacity: 0.85,
+      fillOpacity: getEventOpacity(location.events),
       ...extraStyles
     })
 
@@ -93,6 +94,7 @@ function MapEvents ({ getCategoryColor, categories, projectPoint, styleLocation,
       longitude: '32.2'
     }
     */
+    if (!location.latitude || !location.longitude) return null
     const { x, y } = projectPoint([location.latitude, location.longitude])
 
     // in narrative mode, only render events in narrative
@@ -108,7 +110,11 @@ function MapEvents ({ getCategoryColor, categories, projectPoint, styleLocation,
     }
 
     const customStyles = styleLocation ? styleLocation(location) : null
-    const extraRender = (customStyles) ? customStyles[1] : null
+    const extraRender = () => (
+      <React.Fragment>
+        {customStyles[1]}
+      </React.Fragment>
+    )
 
     const isSelected = selected.reduce((acc, event) => {
       return acc || (event.latitude === location.latitude && event.longitude === location.longitude)

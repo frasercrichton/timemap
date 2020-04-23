@@ -18,7 +18,10 @@ module.exports = {
     USE_SITES: true,
     USE_SOURCES: true,
     USE_SHAPES: false,
-    CATEGORIES_AS_TAGS: true
+    CATEGORIES_AS_TAGS: true,
+    /** setting this to true will 'graph' non-located events. TODO: document
+    * and rename **/
+    ASSOCIATIVE_EVENTS_BY_TAG: false
   },
   store: {
     app: {
@@ -35,6 +38,7 @@ module.exports = {
         shapes: {},
         narratives: {},
         selectedEvent: {}
+        // tiles: 'your-mapbox-account-name/x5678-map-id'
       }
     }
   }

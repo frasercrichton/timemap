@@ -12,20 +12,35 @@ class TimelineAxis extends React.Component {
   }
 
   componentDidUpdate () {
+    let fstFmt, sndFmt
+
+    // 10yrs
+    if (this.props.extent > 5256000) {
+      fstFmt = '%Y'
+      sndFmt = ''
+    // 1yr
+    } else if (this.props.extent > 43200) {
+      sndFmt = '%Y'
+      fstFmt = '%d %b'
+    } else {
+      sndFmt = '%d %b'
+      fstFmt = '%H:%M'
+    }
+
     if (this.props.scaleX) {
       this.x0 =
         d3.axisBottom(this.props.scaleX)
           .ticks(10)
           .tickPadding(5)
           .tickSize(this.props.dims.trackHeight)
-          .tickFormat(d3.timeFormat('%Y'))
+          .tickFormat(d3.timeFormat(fstFmt))
 
       this.x1 =
         d3.axisBottom(this.props.scaleX)
           .ticks(10)
-          .tickPadding(this.props.dims.margin_top)
+          .tickPadding(this.props.dims.marginTop)
           .tickSize(0)
-          .tickFormat(d3.timeFormat('%b'))
+          .tickFormat(d3.timeFormat(sndFmt))
 
       if (!this.state.isInitialized) this.setState({ isInitialized: true })
     }
@@ -44,17 +59,18 @@ class TimelineAxis extends React.Component {
   }
 
   render () {
+    const PADDING = 20
     return (
       <React.Fragment>
         <g
           ref={this.xAxis0Ref}
-          transform={`translate(0, 25)`}
+          transform={`translate(0, ${PADDING})`}
           clipPath={`url(#clip)`}
           className={`axis xAxis`}
         />
         {<g
           ref={this.xAxis1Ref}
-          transform={`translate(0, 105)`}
+          transform={`translate(0, ${this.props.dims.trackHeight + PADDING})`}
           clipPath={`url(#clip)`}
           className={`axis axisHourText`}
         />}

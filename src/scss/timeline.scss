@@ -15,7 +15,6 @@ $timeline-height: 170px;
 
   &.folded {
     transition: bottom 0.2s ease;
-    bottom: -$timeline-height;
 
     .timeline-header .timeline-toggle p .arrow-down {
       transform: translate(0, 5px)rotate(-135deg);
@@ -95,8 +94,9 @@ $timeline-height: 170px;
   }
 
   .timeline-content {
-    height: 160px;
-    padding-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     .timeline-labels {
       padding-top: 2px;
@@ -174,8 +174,7 @@ $timeline-height: 170px;
 
       .yAxis {
         .tick line {
-          stroke: $midwhite;
-          stroke-width: 15px;
+          stroke: white; // $midwhite;
           cursor: -webkit-grab;
           cursor: -moz-grab;
         }

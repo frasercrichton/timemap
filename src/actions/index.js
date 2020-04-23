@@ -34,9 +34,12 @@ export function fetchDomain () {
       .then(response => response.json())
       .catch(() => handleError(domainMsg('categories')))
 
-    const narPromise = fetch(NARRATIVE_URL)
-      .then(response => response.json())
-      .catch(() => handleError(domainMsg('narratives')))
+    let narPromise = Promise.resolve([])
+    if (process.env.features.USE_CATEGORIES) {
+      narPromise = fetch(NARRATIVE_URL)
+        .then(response => response.json())
+        .catch(() => handleError(domainMsg('narratives')))
+    }
 
     let sitesPromise = Promise.resolve([])
     if (process.env.features.USE_SITES) {
@@ -193,6 +196,14 @@ export function updateTimeRange (timerange) {
   return {
     type: UPDATE_TIMERANGE,
     timerange
+  }
+}
+
+export const UPDATE_DIMENSIONS = 'UPDATE_DIMENSIONS'
+export function updateDimensions (dims) {
+  return {
+    type: UPDATE_DIMENSIONS,
+    dims
   }
 }
 

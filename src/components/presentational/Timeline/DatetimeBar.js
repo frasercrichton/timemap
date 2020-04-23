@@ -5,17 +5,19 @@ export default ({
   events,
   x,
   y,
-  r,
+  width,
+  height,
   onSelect,
   styleProps,
   extraRender
 }) => (
-  <circle
+  <rect
     onClick={onSelect}
     className='event'
-    cx={x}
-    cy={y}
+    x={x}
+    y={y}
     style={styleProps}
-    r={r}
+    width={width}
+    height={height}
   />
 )
