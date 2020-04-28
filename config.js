@@ -12,13 +12,16 @@ module.exports = {
   INCOMING_DATETIME_FORMAT: '%d/%m/%YT%H:%M',
   MAPBOX_TOKEN: 'pk.eyJ1IjoiZnJhc2VyYyIsImEiOiJjazJ2dWx6bHMwOGRiM2RueGJoZnhyazhnIn0._uqEizdOhsnp3SLJEK1iVw',
   features: {
+    USE_NARRATIVES: true,
+    USE_CATEGORIES: true,
     USE_COVER: true,
     USE_TAGS: true,
     USE_SEARCH: true,
     USE_SITES: true,
     USE_SOURCES: true,
     USE_SHAPES: false,
-    CATEGORIES_AS_TAGS: true
+    CATEGORIES_AS_TAGS: true,
+    ASSOCIATIVE_EVENTS_BY_TAG: false,
   },
   store: {
     app: {
