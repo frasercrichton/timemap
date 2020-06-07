@@ -189,8 +189,10 @@ $timeline-height: 170px;
       .drag-grabber {
         cursor: -webkit-grab;
         cursor: -moz-grab;
-        fill: $offwhite;
-        opacity: 0.05;
+        //fill: $offwhite;
+        fill: #ffffff;
+        // opacity: 0.05;
+        opacity: 0.35;
       }
 
       .axisBoundaries {

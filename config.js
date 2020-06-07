@@ -2,12 +2,12 @@ module.exports = {
   title: 'The Moral Drift',
   display_title: 'The Moral Drift',
   SERVER_ROOT: 'http://localhost:4040',
-  EVENT_EXT: '/api/forensic/welfare_export_events/deeprows',
-  CATEGORY_EXT: '/api/forensic/welfare_export_categories/rows',
-  NARRATIVE_EXT: '/api/forensic/welfare_export_narratives/rows',
-  SOURCES_EXT: '/api/forensic/welfare_export_sources/deepids',
-  TAGS_EXT: '/api/forensic/welfare_export_tags/tree',
-  SITES_EXT: '/api/forensic/welfare_export_sites/rows',
+  EVENT_EXT: '/api/forensic/moraldrift_export_events/deeprows',
+  CATEGORY_EXT: '/api/forensic/moraldrift_export_categories/rows',
+  NARRATIVE_EXT: '/api/forensic/moraldrift_export_narratives/rows',
+  SOURCES_EXT: '/api/forensic/moraldrift_export_sources/deepids',
+  TAGS_EXT: '/api/forensic/moraldrift_export_tags/tree',
+  SITES_EXT: '/api/forensic/moraldrift_export_sites/rows',
   SHAPES_EXT: '/api/forensic/export_shapes/columns',
   INCOMING_DATETIME_FORMAT: '%d/%m/%YT%H:%M',
   MAPBOX_TOKEN: 'pk.eyJ1IjoiZnJhc2VyYyIsImEiOiJjazJ2dWx6bHMwOGRiM2RueGJoZnhyazhnIn0._uqEizdOhsnp3SLJEK1iVw',
@@ -54,10 +54,11 @@ module.exports = {
       style: {
         categories:
         {
-          'Legislation': '#F5F5F5',
+          // 'Legislation': '#F5F5F5',
+          'Legislation': '#ffffff',
           'Child Welfare': '#bbbbbb',
-          'Psychiatric Care': '#636363',
-          'Mass Incarceration': '#454545'
+          'Psychiatric Care': '#202020',
+          'Mass Incarceration': '#000000'
         },
         narratives: {
           default: {
