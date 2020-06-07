@@ -1,5 +1,5 @@
 import initial from '../store/initial.js'
-import { parseDate, toggleFlagAC } from '../common/utilities'
+import { toggleFlagAC } from '../common/utilities'
 
 import {
   UPDATE_HIGHLIGHTED,
@@ -20,7 +20,9 @@ import {
   TOGGLE_NOTIFICATIONS,
   TOGGLE_COVER,
   FETCH_ERROR,
-  FETCH_SOURCE_ERROR
+  FETCH_SOURCE_ERROR,
+  SET_LOADING,
+  SET_NOT_LOADING
 } from '../actions'
 
 function updateHighlighted (appState, action) {
@@ -44,12 +46,12 @@ function updateNarrative (appState, action) {
 
   // Compute narrative time range and map bounds
   if (action.narrative) {
-    minTime = parseDate('2100-01-01T00:00:00')
-    maxTime = parseDate('1900-01-01T00:00:00')
+    minTime = appState.timeline.rangeLimits[0]
+    maxTime = appState.timeline.rangeLimits[1]
 
     // Find max and mins coordinates of narrative events
     action.narrative.steps.forEach(step => {
-      const stepTime = parseDate(step.timestamp)
+      const stepTime = step.datetime
       if (stepTime < minTime) minTime = stepTime
       if (stepTime > maxTime) maxTime = stepTime
 
@@ -77,8 +79,8 @@ function updateNarrative (appState, action) {
     }
 
     // Add some buffer on both sides of the time extent
-    minTime = new Date(minTime.getTime() - Math.abs((maxTime - minTime) / 10))
-    maxTime = new Date(maxTime.getTime() + Math.abs((maxTime - minTime) / 10))
+    minTime = minTime - Math.abs((maxTime - minTime) / 10)
+    maxTime = maxTime + Math.abs((maxTime - minTime) / 10)
   }
 
   return {
@@ -118,12 +120,19 @@ function decrementNarrativeCurrent (appState, action) {
 }
 
 function toggleFilter (appState, action) {
-  let newTags = appState.filters[action.filter].slice(0)
-  if (newTags.includes(action.value)) {
-    newTags = newTags.filter(s => s !== action.value)
-  } else {
-    newTags.push(action.value)
+  if (!(action.value instanceof Array)) {
+    action.value = [action.value]
   }
+
+  let newTags = appState.filters[action.filter].slice(0)
+  action.value.forEach(vl => {
+    if (newTags.includes(vl)) {
+      newTags = newTags.filter(s => s !== vl)
+    } else {
+      newTags.push(vl)
+    }
+  })
+
   return {
     ...appState,
     filters: {
@@ -205,6 +214,20 @@ function fetchSourceError (appState, action) {
   }
 }
 
+function setLoading (appState) {
+  return {
+    ...appState,
+    loading: true
+  }
+}
+
+function setNotLoading (appState) {
+  return {
+    ...appState,
+    loading: false
+  }
+}
+
 function app (appState = initial.app, action) {
   switch (action.type) {
     case UPDATE_HIGHLIGHTED:
@@ -247,6 +270,10 @@ function app (appState = initial.app, action) {
       return fetchError(appState, action)
     case FETCH_SOURCE_ERROR:
       return fetchSourceError(appState, action)
+    case SET_LOADING:
+      return setLoading(appState)
+    case SET_NOT_LOADING:
+      return setNotLoading(appState)
     default:
       return appState
   }

@@ -16,7 +16,7 @@ import Notification from './Notification.jsx'
 import StaticPage from './StaticPage'
 import TemplateCover from './TemplateCover'
 
-import { parseDate } from '../common/utilities'
+import { binarySearch } from '../common/utilities'
 import { isMobile } from 'react-device-detect'
 
 class Dashboard extends React.Component {
@@ -29,8 +29,6 @@ class Dashboard extends React.Component {
     this.moveInNarrative = this.moveInNarrative.bind(this)
     this.handleSelect = this.handleSelect.bind(this)
     this.getCategoryColor = this.getCategoryColor.bind(this)
-
-    this.eventsById = {}
   }
 
   componentDidMount () {
@@ -49,27 +47,52 @@ class Dashboard extends React.Component {
     this.props.actions.updateHighlighted((highlighted) || null)
   }
 
-  getEventById (eventId) {
-    if (this.eventsById[eventId]) return this.eventsById[eventId]
-    this.eventsById[eventId] = this.props.domain.events.find(ev => ev.id === eventId)
-    return this.eventsById[eventId]
-  }
-
   handleViewSource (source) {
     this.props.actions.updateSource(source)
   }
 
-  handleSelect (selected) {
-    if (selected) {
-      let eventsToSelect = selected.map(event => this.getEventById(event.id))
-      eventsToSelect = eventsToSelect.sort((a, b) => parseDate(a.timestamp) - parseDate(b.timestamp))
-
-      this.props.actions.updateSelected(eventsToSelect)
+  handleSelect (selected, axis) {
+    const matchedEvents = []
+    const TIMELINE_AXIS = 0
+    if (axis === TIMELINE_AXIS) {
+      matchedEvents.push(selected)
+      // find in events
+      const { events } = this.props.domain
+      const idx = binarySearch(
+        events,
+        selected,
+        (e1, e2) => {
+          return e1.datetime - e2.datetime
+        }
+      )
+      // check events before
+      let ptr = idx - 1
+      while (events[idx].datetime === events[ptr].datetime) {
+        matchedEvents.push(events[ptr])
+        ptr -= 1
+      }
+      // check events after
+      ptr = idx + 1
+      while (events[idx].datetime === events[ptr].datetime) {
+        matchedEvents.push(events[ptr])
+        ptr += 1
+      }
+    } else { // Map...
+      const std = { ...selected }
+      delete std.sources
+      Object.values(std).forEach(ev => matchedEvents.push(ev))
     }
+
+    this.props.actions.updateSelected(matchedEvents)
   }
 
   getCategoryColor (category) {
-    return this.props.ui.style.categories[category] || this.props.ui.style.categories['default']
+    const cat = this.props.ui.style.categories[category]
+    if (cat) {
+      return cat
+    } else {
+      return this.props.ui.style.categories['default']
+    }
   }
 
   getNarrativeLinks (event) {
@@ -103,12 +126,12 @@ class Dashboard extends React.Component {
   }
 
   render () {
-    const { actions, app, domain, ui } = this.props
+    const { actions, app, domain, ui, features } = this.props
 
     if (isMobile || window.innerWidth < 1000) {
       return (
         <div>
-          {process.env.features.USE_COVER && (
+          {features.USE_COVER && (
             <StaticPage showing={app.flags.isCover}>
               {/* enable USE_COVER in config.js features, and customise your header */}
               {/* pass 'actions.toggleCover' as a prop to your custom header */}
@@ -136,14 +159,14 @@ class Dashboard extends React.Component {
         />
         <Map
           methods={{
-            onSelect: this.handleSelect,
+            onSelect: ev => this.handleSelect(ev, 1),
             onSelectNarrative: this.setNarrative,
             getCategoryColor: this.getCategoryColor
           }}
         />
         <Timeline
           methods={{
-            onSelect: this.handleSelect,
+            onSelect: ev => this.handleSelect(ev, 0),
             onUpdateTimerange: actions.updateTimeRange,
             getCategoryColor: category => this.getCategoryColor(category)
           }}
@@ -188,7 +211,7 @@ class Dashboard extends React.Component {
             }
           />
         ) : null}
-        {process.env.features.USE_COVER && (
+        {features.USE_COVER && (
           <StaticPage showing={app.flags.isCover}>
             {/* enable USE_COVER in config.js features, and customise your header */}
             {/* pass 'actions.toggleCover' as a prop to your custom header */}
@@ -196,6 +219,7 @@ class Dashboard extends React.Component {
           </StaticPage>
         )}
         <LoadingOverlay
+          isLoading={app.loading || app.flags.isFetchingDomain}
           ui={app.flags.isFetchingDomain}
           language={app.language}
         />

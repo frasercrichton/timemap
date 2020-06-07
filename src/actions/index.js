@@ -23,7 +23,8 @@ export function fetchDomain () {
     return []
   }
 
-  return dispatch => {
+  return (dispatch, getState) => {
+    const features = getState().features
     dispatch(toggleFetchingDomain())
 
     const eventPromise = fetch(EVENT_DATA_URL)
@@ -35,21 +36,21 @@ export function fetchDomain () {
       .catch(() => handleError(domainMsg('categories')))
 
     let narPromise = Promise.resolve([])
-    if (process.env.features.USE_CATEGORIES) {
+    if (features.USE_NARRATIVES) {
       narPromise = fetch(NARRATIVE_URL)
         .then(response => response.json())
         .catch(() => handleError(domainMsg('narratives')))
     }
 
     let sitesPromise = Promise.resolve([])
-    if (process.env.features.USE_SITES) {
+    if (features.USE_SITES) {
       sitesPromise = fetch(SITES_URL)
         .then(response => response.json())
         .catch(() => handleError(domainMsg('sites')))
     }
 
     let tagsPromise = Promise.resolve([])
-    if (process.env.features.USE_TAGS) {
+    if (features.USE_FILTERS) {
       if (!TAGS_URL) {
         tagsPromise = Promise.resolve(handleError('USE_TAGS is true, but you have not provided a TAGS_EXT'))
       } else {
@@ -60,7 +61,7 @@ export function fetchDomain () {
     }
 
     let sourcesPromise = Promise.resolve([])
-    if (process.env.features.USE_SOURCES) {
+    if (features.USE_SOURCES) {
       if (!SOURCES_URL) {
         sourcesPromise = Promise.resolve(handleError('USE_SOURCES is true, but you have not provided a SOURCES_EXT'))
       } else {
@@ -71,7 +72,7 @@ export function fetchDomain () {
     }
 
     let shapesPromise = Promise.resolve([])
-    if (process.env.features.USE_SHAPES) {
+    if (features.USE_SHAPES) {
       shapesPromise = fetch(SHAPES_URL)
         .then(response => response.json())
         .catch(() => handleError(domainMsg('shapes')))
@@ -100,6 +101,7 @@ export function fetchDomain () {
         if (Object.values(result).some(resp => resp.hasOwnProperty('error'))) {
           throw new Error('Some URLs returned negative. If you are in development, check the server is running')
         }
+        dispatch(toggleFetchingDomain())
         return result
       })
       .catch(err => {
@@ -188,6 +190,20 @@ export function toggleFilter (filter, value) {
     type: TOGGLE_FILTER,
     filter,
     value
+  }
+}
+
+export const SET_LOADING = 'SET_LOADING'
+export function setLoading () {
+  return {
+    type: SET_LOADING
+  }
+}
+
+export const SET_NOT_LOADING = 'SET_NOT_LOADING'
+export function setNotLoading () {
+  return {
+    type: SET_NOT_LOADING
   }
 }
 

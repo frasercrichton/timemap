@@ -16,14 +16,14 @@ const eventSchema = Joi.object().keys({
   sources: Joi.array(),
   tags: Joi.array().allow(''),
   comments: Joi.string().allow(''),
-  timestamp: Joi.string(),
   time_display: Joi.string().allow(''),
 
   // nested
-  narrative___stepStyles: Joi.array()
+  narrative___stepStyles: Joi.array(),
+  shape: Joi.string().allow(''),
+  colour: Joi.string().allow('')
 })
   .and('latitude', 'longitude')
-  .and('date', 'timestamp')
-  .or('timestamp', 'latitude')
+  .or('date', 'latitude')
 
 export default eventSchema

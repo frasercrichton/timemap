@@ -1,5 +1,5 @@
 import { mergeDeepLeft } from 'ramda'
-import colors from '../common/global.js'
+import global from '../common/global'
 
 const initial = {
   /*
@@ -93,7 +93,8 @@ const initial = {
       title: 'project title',
       subtitle: 'project subtitle',
       description: 'A description of the project goes here.\n\nThis description may contain markdown.\n\n# This is a large title, for example.\n\n## Whereas this is a slightly smaller title.\n\nCheck out docs/custom-covers.md in the [Timemap GitHub repo](https://github.com/forensic-architecture/timemap) for more information around how to specify custom covers.'
-    }
+    },
+    loading: false
   },
 
   /*
@@ -105,12 +106,12 @@ const initial = {
     tiles: 'openstreetmap', // ['openstreetmap', 'streets', 'satellite']
     style: {
       categories: {
-        default: colors.fa_red
+        default: global.fallbackEventColor
       },
       narratives: {
         default: {
           opacity: 0.9,
-          stroke: colors.fa_red,
+          stroke: global.fallbackEventColor,
           strokeWidth: 3
         }
       },
@@ -127,6 +128,19 @@ const initial = {
       timeslider: 'timeslider',
       map: 'map'
     }
+  },
+
+  features: {
+    CATEGORIES_AS_TAGS: true,
+    USE_COVER: false,
+    USE_TAGS: false,
+    USE_SEARCH: false,
+    USE_SITES: false,
+    USE_SOURCES: false,
+    USE_SHAPES: false,
+    USE_NARRATIVES: false,
+    GRAPH_NONLOCATED: false,
+    HIGHLIGHT_GROUPS: false
   }
 }
 

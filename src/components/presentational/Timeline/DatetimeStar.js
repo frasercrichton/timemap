@@ -1,24 +1,24 @@
 import React from 'react'
 
 export default ({
-  category,
-  events,
   x,
   y,
   r,
+  transform,
   onSelect,
   styleProps,
   extraRender
 }) => {
-  if (!y) return null
+  const s = r * 2 / 3
+  const s2 = r * 4 / 3
   return (
-    <circle
+    <polygon
       onClick={onSelect}
       className='event'
-      cx={x}
-      cy={y}
+      x={x}
+      y={y - r}
       style={styleProps}
-      r={r}
+      points={`${x},${y + s} ${x - s},${y - s} ${x + s},${y} ${x - s},${y} ${x + s},${y - s}`}
     />
   )
 }

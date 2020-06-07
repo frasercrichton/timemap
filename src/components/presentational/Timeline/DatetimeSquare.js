@@ -1,23 +1,24 @@
 import React from 'react'
 
 export default ({
-  category,
-  events,
   x,
   y,
   r,
+  transform,
   onSelect,
   styleProps,
   extraRender
-}) => (
-
-  <rect
-    onClick={onSelect}
-    className='event'
-    x={x}
-    y={y - 0.5 * r}
-    style={styleProps}
-    width={r}
-    height={r}
-  />
-)
+}) => {
+  return (
+    <rect
+      onClick={onSelect}
+      className='event'
+      x={x}
+      y={y - r}
+      style={styleProps}
+      width={r}
+      height={r}
+      transform={`rotate(45, ${x}, ${y})`}
+    />
+  )
+}

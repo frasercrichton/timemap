@@ -1,152 +1,126 @@
 import React from 'react'
 import DatetimeDot from './DatetimeDot'
 import DatetimeBar from './DatetimeBar'
+import DatetimeSquare from './DatetimeSquare'
+import DatetimeStar from './DatetimeStar'
 import Project from './Project'
-import { getEventOpacity } from '../../../common/utilities'
+import { calcOpacity } from '../../../common/utilities'
 import { sizes } from '../../../common/global'
 
-// return a list of lists, where each list corresponds to a single category
-function getDotsToRender (events) {
-  // each datetime needs to render as many dots as there are distinct
-  // categories in the events contained by the datetime.
-  // To this end, eventsByCategory is an intermediate data structure that
-  // groups a datetime's events by distinct categories
-  const eventsByCategory = {}
-  events.forEach(ev => {
-    if (eventsByCategory[ev.category]) {
-      eventsByCategory[ev.category].events.push((ev))
-    } else {
-      eventsByCategory[ev.category] = {
-        category: ev.category,
-        events: [ ev ]
-      }
-    }
-  })
-
-  return Object.values(eventsByCategory)
+function renderDot (event, styles, props) {
+  return <DatetimeDot
+    onSelect={props.onSelect}
+    category={event.category}
+    events={[event]}
+    x={props.x}
+    y={props.y}
+    r={sizes.eventDotR}
+    styleProps={styles}
+  />
 }
-const HAS_PROJECTS = 'ASSOCIATIVE_EVENTS_BY_TAG' in process.env.features && process.env.features.ASSOCIATIVE_EVENTS_BY_TAG
+
+function renderBar (event, styles, props) {
+  const fillOpacity = props.features.GRAPH_NONLOCATED
+    ? event.projectOffset >= 0 ? styles.opacity : 0.5
+    : 0.6
+
+  return <DatetimeBar
+    onSelect={props.onSelect}
+    category={event.category}
+    events={[event]}
+    x={props.x}
+    y={props.dims.marginTop}
+    width={sizes.eventDotR / 4}
+    height={props.dims.trackHeight}
+    styleProps={{ ...styles, fillOpacity }}
+    highlights={props.highlights}
+  />
+}
+
+function renderDiamond (event, styles, props) {
+  return <DatetimeSquare
+    onSelect={props.onSelect}
+    x={props.x}
+    y={props.y}
+    r={1.8 * sizes.eventDotR}
+    styleProps={styles}
+  />
+}
+
+function renderStar (event, styles, props) {
+  return <DatetimeStar
+    onSelect={props.onSelect}
+    x={props.x}
+    y={props.y}
+    r={1.8 * sizes.eventDotR}
+    styleProps={{ ...styles, fillRule: 'nonzero' }}
+    transform='rotate(90)'
+  />
+}
 
 const TimelineEvents = ({
-  datetimes,
+  events,
+  projects,
   narrative,
   getDatetimeX,
-  getCategoryY,
+  getY,
   getCategoryColor,
+  getHighlights,
   onSelect,
   transitionDuration,
-  styleDatetime,
-  dims
+  dims,
+  features,
+  setLoading,
+  setNotLoading
 }) => {
-  function renderDatetime (datetime) {
-    if (narrative) {
-      const { steps } = narrative
-      // check all events in the datetime before rendering in narrative
-      let isInNarrative = false
-      for (let i = 0; i < datetime.events.length; i++) {
-        const event = datetime.events[i]
-        if (steps.map(s => s.id).includes(event.id)) {
-          isInNarrative = true
-          break
-        }
-      }
+  const narIds = narrative ? narrative.steps.map(s => s.id) : []
 
-      if (!isInNarrative) {
+  function renderEvent (event) {
+    if (narrative) {
+      if (!(narIds.includes(event.id))) {
         return null
       }
     }
 
-    const dotsToRender = getDotsToRender(datetime.events)
-
-    return dotsToRender.map(dot => {
-      const customStyles = styleDatetime ? styleDatetime(datetime, dot.category) : null
-      const extraStyles = customStyles[0]
-
-      const categoryColor = getCategoryColor(dot.category)
-      const locatedEvents = dot.events.filter(ev => ev.latitude && ev.longitude)
-      const unlocatedEvents = dot.events.filter(ev => !ev.latitude || !ev.longitude)
-
-      // TODO: work out smarter way to manage opacity w.r.t. length
-      // i.e. render (count - 1) extra dots with a bit of noise in position
-      // and that, when clicked, all open the same events.
-      const locatedProps = ({
-        fill: categoryColor,
-        fillOpacity: getEventOpacity(locatedEvents),
-        transition: `transform ${transitionDuration / 1000}s ease`,
-        ...extraStyles
-      })
-
-      const unlocatedProps = {
-        fill: categoryColor,
-        fillOpacity: HAS_PROJECTS
-          ? unlocatedEvents.some(ev => ev.projectOffset >= 0) ? getEventOpacity(unlocatedEvents) : 0.05
-          : getEventOpacity(unlocatedEvents) / 4
+    const isDot = (!!event.location && !!event.longitude) || (features.GRAPH_NONLOCATED && event.projectOffset !== -1)
+    let renderShape = isDot ? renderDot : renderBar
+    if (event.shape) {
+      if (event.shape === 'bar') {
+        renderShape = renderBar
+      } else if (event.shape === 'diamond') {
+        renderShape = renderDiamond
+      } else if (event.shape === 'star') {
+        renderShape = renderStar
+      } else {
+        renderShape = renderDot
       }
+    }
 
-      const extraRender = customStyles[1]
+    const eventY = getY(event)
+    let colour = event.colour ? event.colour : getCategoryColor(event.category)
+    const styles = {
+      fill: colour,
+      fillOpacity: eventY > 0 ? calcOpacity(1) : 0,
+      transition: `transform ${transitionDuration / 1000}s ease`
+    }
 
-      let bar = <DatetimeBar
-        onSelect={() => onSelect(unlocatedEvents)}
-        category={dot.category}
-        events={unlocatedEvents}
-        x={getDatetimeX(datetime.timestamp)}
-        y={dims.marginTop}
-        width={sizes.eventDotR}
-        height={dims.trackHeight}
-        styleProps={unlocatedProps}
-      />
-      if (process.env.features.ASSOCIATIVE_EVENTS_BY_TAG) {
-        // render all dots individually
-        bar = <React.Fragment>
-          {unlocatedEvents.map(ev => (<DatetimeBar
-            onSelect={() => onSelect(unlocatedEvents)}
-            category={dot.category}
-            events={[ev]}
-            x={getDatetimeX(datetime.timestamp)}
-            y={ev.projectOffset >= 0 ? dims.trackHeight - ev.projectOffset : dims.marginTop}
-            width={sizes.eventDotR}
-            height={ev.projectOffset >= 0 ? sizes.eventDotR * 2 : dims.trackHeight}
-            styleProps={unlocatedProps}
-          />))}
-        </React.Fragment>
-      }
-      return (
-        <g className='datetime'>
-          {locatedEvents.length >= 1 && <DatetimeDot
-            onSelect={() => onSelect(locatedEvents)}
-            category={dot.category}
-            events={locatedEvents}
-            x={getDatetimeX(datetime.timestamp)}
-            y={getCategoryY(dot.category)}
-            r={sizes.eventDotR}
-            styleProps={locatedProps}
-            extraRender={extraRender}
-          />}
-          {unlocatedEvents.length >= 1 && bar}
-          {extraRender ? extraRender() : null}
-        </g>
-      )
+    return renderShape(event, styles, {
+      x: getDatetimeX(event.datetime),
+      y: eventY,
+      onSelect: () => onSelect(event),
+      dims,
+      highlights: features.HIGHLIGHT_GROUPS ? getHighlights(event.tags[features.HIGHLIGHT_GROUPS.tagIndexIndicatingGroup]) : [],
+      features
     })
   }
 
-  // const projOffsets = {}
-  // const pEvents = datetimes.filter(dt => dt.events.some(ev => ev.project !== null))
-  // pEvents.forEach(({ events }) => {
-  //   events.forEach(ev => {
-  //     if (!projOffsets.hasOwnProperty(ev.project)) {
-  //       projOffsets[ev.project] = ev.projectOffset
-  //     }
-  //   })
-  // })
-
   let renderProjects = () => null
-  if (process.env.features.ASSOCIATIVE_EVENTS_BY_TAG) {
-    const projects = datetimes[1]
-    datetimes = datetimes[0]
+  if (features.GRAPH_NONLOCATED) {
     renderProjects = function () {
       return <React.Fragment>
-        {projects.map(project => <Project
+        {Object.values(projects).map(project => <Project
           {...project}
+          onClick={() => console.log(project)}
           getX={getDatetimeX}
           dims={dims}
           colour={getCategoryColor(project.category)}
@@ -160,7 +134,7 @@ const TimelineEvents = ({
       clipPath={'url(#clip)'}
     >
       {renderProjects()}
-      {datetimes.map(datetime => renderDatetime(datetime))}
+      {events.map(event => renderEvent(event))}
     </g>
   )
 }
