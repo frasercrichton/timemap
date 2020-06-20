@@ -17,20 +17,6 @@ function renderDot (event, styles, props) {
     r={props.eventRadius}
     styleProps={styles}
   />
-    ? event.projectOffset >= 0 ? styles.opacity : 0.5
-    : 0.6
-
-  return <DatetimeBar
-    onSelect={props.onSelect}
-    category={event.category}
-    events={[event]}
-    x={props.x}
-    y={props.dims.marginTop}
-    width={sizes.eventDotR / 4}
-    height={props.dims.trackHeight}
-    styleProps={{ ...styles, fillOpacity }}
-    highlights={props.highlights}
-  />
 }
 
 function renderBar (event, styles, props) {
