@@ -6,24 +6,26 @@ module.exports = {
   CATEGORY_EXT: '/api/forensic/moraldrift_export_categories/rows',
   NARRATIVE_EXT: '/api/forensic/moraldrift_export_narratives/rows',
   SOURCES_EXT: '/api/forensic/moraldrift_export_sources/deepids',
-  TAGS_EXT: '/api/forensic/moraldrift_export_tags/tree',
+  TAGS_EXT: '/api/forensic/moraldrift_export_filters/tree',
   SITES_EXT: '/api/forensic/moraldrift_export_sites/rows',
   SHAPES_EXT: '/api/forensic/export_shapes/columns',
   INCOMING_DATETIME_FORMAT: '%d/%m/%YT%H:%M',
   MAPBOX_TOKEN: 'pk.eyJ1IjoiZnJhc2VyYyIsImEiOiJjazJ2dWx6bHMwOGRiM2RueGJoZnhyazhnIn0._uqEizdOhsnp3SLJEK1iVw',
-  features: {
-    USE_NARRATIVES: true,
-    USE_CATEGORIES: true,
-    USE_COVER: true,
-    USE_TAGS: true,
-    USE_SEARCH: true,
-    USE_SITES: true,
-    USE_SOURCES: true,
-    USE_SHAPES: false,
-    CATEGORIES_AS_TAGS: true,
-    ASSOCIATIVE_EVENTS_BY_TAG: false,
-  },
   store: {
+    features: {
+      USE_NARRATIVES: true,
+      USE_CATEGORIES: true,
+      USE_COVER: true,
+      USE_TAGS: true,
+      USE_SEARCH: true,
+      USE_SITES: true,
+      USE_SOURCES: true,
+      USE_SHAPES: false,
+      USE_FILTERS: true,
+      CATEGORIES_AS_TAGS: true,
+      GRAPH_NONLOCATED: false,//{ categories: 'Legislation' },
+      ASSOCIATIVE_EVENTS_BY_TAG: true,
+    },
     app: {
       map: {
         minZoom: 5,
@@ -54,7 +56,6 @@ module.exports = {
       style: {
         categories:
         {
-          // 'Legislation': '#F5F5F5',
           'Legislation': '#ffffff',
           'Child Welfare': '#bbbbbb',
           'Psychiatric Care': '#202020',

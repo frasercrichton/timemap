@@ -167,13 +167,12 @@ export const selectEventsWithProjects = createSelector(
     // get all projects
     events = events.reduce((acc, event) => {
       const project = event.tags.length >= 1 && !event.latitude && !event.longitude ? getProject(event) : null
-
       // add project if it doesn't exist
       if (project !== null) {
         if (projects.hasOwnProperty(project)) {
           projects[project].start = dateMin(projects[project].start, event.datetime)
           projects[project].end = dateMax(projects[project].end, event.datetime)
-        } else {
+        } else {          
           projects[project] = {
             start: event.datetime,
             end: event.datetime,
