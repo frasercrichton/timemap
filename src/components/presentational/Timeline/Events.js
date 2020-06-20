@@ -5,7 +5,6 @@ import DatetimeSquare from './DatetimeSquare'
 import DatetimeStar from './DatetimeStar'
 import Project from './Project'
 import { calcOpacity } from '../../../common/utilities'
-import { sizes } from '../../../common/global'
 
 function renderDot (event, styles, props) {
   return <DatetimeDot
