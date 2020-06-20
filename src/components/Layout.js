@@ -16,6 +16,7 @@ import Notification from './Notification.jsx'
 import StaticPage from './StaticPage'
 import TemplateCover from './TemplateCover'
 
+import colors from '../common/global'
 import { binarySearch } from '../common/utilities'
 import { isMobile } from 'react-device-detect'
 
@@ -67,13 +68,21 @@ class Dashboard extends React.Component {
       )
       // check events before
       let ptr = idx - 1
-      while (events[idx].datetime === events[ptr].datetime) {
+
+      while (
+        ptr >= 0 &&
+        (events[idx].datetime).getTime() === (events[ptr].datetime).getTime()
+      ) {
         matchedEvents.push(events[ptr])
         ptr -= 1
       }
       // check events after
       ptr = idx + 1
-      while (events[idx].datetime === events[ptr].datetime) {
+
+      while (
+        ptr < events.length &&
+        (events[idx].datetime).getTime() === (events[ptr].datetime).getTime()
+      ) {
         matchedEvents.push(events[ptr])
         ptr += 1
       }
@@ -87,6 +96,8 @@ class Dashboard extends React.Component {
   }
 
   getCategoryColor (category) {
+    if (!this.props.features.USE_CATEGORIES) { return colors.fallbackEventColor }
+
     const cat = this.props.ui.style.categories[category]
     if (cat) {
       return cat
@@ -104,7 +115,7 @@ class Dashboard extends React.Component {
   setNarrative (narrative) {
     // only handleSelect if narrative is not null
     if (narrative) {
-      this.props.actions.clearFilter('tags')
+      this.props.actions.clearFilter('filters')
       this.props.actions.clearFilter('categories')
       this.handleSelect([ narrative.steps[0] ])
     }
@@ -152,7 +163,7 @@ class Dashboard extends React.Component {
           isNarrative={!!app.narrative}
           methods={{
             onTitle: actions.toggleCover,
-            onTagFilter: tag => actions.toggleFilter('tags', tag),
+            onSelectFilter: filter => actions.toggleFilter('filters', filter),
             onCategoryFilter: category => actions.toggleFilter('categories', category),
             onSelectNarrative: this.setNarrative
           }}
@@ -168,7 +179,7 @@ class Dashboard extends React.Component {
           methods={{
             onSelect: ev => this.handleSelect(ev, 0),
             onUpdateTimerange: actions.updateTimeRange,
-            getCategoryColor: category => this.getCategoryColor(category)
+            getCategoryColor: this.getCategoryColor
           }}
         />
         <CardStack
@@ -177,7 +188,7 @@ class Dashboard extends React.Component {
           onHighlight={this.handleHighlight}
           onToggleCardstack={() => actions.updateSelected([])}
           getNarrativeLinks={event => this.getNarrativeLinks(event)}
-          getCategoryColor={category => this.getCategoryColor(category)}
+          getCategoryColor={this.getCategoryColor}
         />
         <NarrativeControls
           narrative={app.narrative ? {

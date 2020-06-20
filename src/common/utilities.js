@@ -1,5 +1,3 @@
-import { timeFormat, timeParse } from 'd3'
-
 import moment from 'moment'
 
 let { DATE_FMT, TIME_FMT } = process.env
@@ -140,7 +138,7 @@ export function typeForPath (path) {
   let type
   path = path.trim()
   switch (true) {
-    case /\.((png)|(jpg))$/.test(path):
+    case /\.((png)|(jpg)|(jpeg))$/.test(path):
       type = 'Image'; break
     case /\.(mp4)$/.test(path):
       type = 'Video'; break

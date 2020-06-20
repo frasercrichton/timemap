@@ -1,8 +1,9 @@
 import React from 'react'
-import colors, { sizes } from '../../../common/global'
+import colors from '../../../common/global'
 
 const TimelineMarkers = ({
   styles,
+  eventRadius,
   getEventX,
   getEventY,
   transitionDuration,
@@ -27,7 +28,7 @@ const TimelineMarkers = ({
           '-moz-transition': 'none',
           'opacity': 0.9
         }}
-        r={sizes.eventDotR * 2}
+        r={eventRadius * 2}
       />
     }
     function renderBar () {
@@ -35,7 +36,7 @@ const TimelineMarkers = ({
         className='timeline-marker'
         x={0}
         y={0}
-        width={sizes.eventDotR / 3}
+        width={eventRadius / 2}
         height={dims.contentHeight - 55}
         stroke={styles ? styles.stroke : colors.primaryHighlight}
         stroke-opacity='1'
@@ -47,7 +48,8 @@ const TimelineMarkers = ({
         }}
       />
     }
-    const isNonlocated = !event.latitude && !event.longitude
+    const isDot = (!!event.location && !!event.longitude) || (features.GRAPH_NONLOCATED && event.projectOffset !== -1)
+
     switch (event.shape) {
       case 'circle':
         return renderCircle()
@@ -58,7 +60,7 @@ const TimelineMarkers = ({
       case 'star':
         return renderCircle()
       default:
-        return (!features.GRAPH_NONLOCATED && isNonlocated) ? renderBar : renderCircle()
+        return isDot ? renderCircle() : renderBar()
     }
   }
 

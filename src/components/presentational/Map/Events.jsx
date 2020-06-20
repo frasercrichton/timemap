@@ -3,7 +3,18 @@ import { Portal } from 'react-portal'
 import colors from '../../../common/global.js'
 import { calcOpacity } from '../../../common/utilities'
 
-function MapEvents ({ getCategoryColor, categories, projectPoint, styleLocation, selected, narrative, onSelect, svg, locations }) {
+function MapEvents ({
+  getCategoryColor,
+  categories,
+  projectPoint,
+  styleLocation,
+  selected,
+  narrative,
+  onSelect,
+  svg,
+  locations,
+  eventRadius
+}) {
   function getCoordinatesForPercent (radius, percent) {
     const x = radius * Math.cos(2 * Math.PI * percent)
     const y = radius * Math.sin(2 * Math.PI * percent)
@@ -34,18 +45,18 @@ function MapEvents ({ getCategoryColor, categories, projectPoint, styleLocation,
       fill: getCategoryColor(locCategory),
       stroke: colors.darkBackground,
       strokeWidth: 0,
-      fillOpacity: calcOpacity(location.events.length),
+      fillOpacity: narrative ? 1 : calcOpacity(location.events.length),
       ...extraStyles
     })
 
-    const colorSlices = location.events.map(e => getCategoryColor(e.category))
+    const colorSlices = location.events.map(e => e.colour ? e.colour : getCategoryColor(e.category))
 
     let cumulativeAngleSweep = 0
 
     return (
       <React.Fragment>
         {colorSlices.map((color, idx) => {
-          const r = 10
+          const r = eventRadius
 
           // Based on the number of events in each location,
           // create a slice per event filled with its category color

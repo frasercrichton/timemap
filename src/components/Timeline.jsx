@@ -7,7 +7,6 @@ import { setLoading, setNotLoading } from '../actions'
 import hash from 'object-hash'
 
 import copy from '../common/data/copy.json'
-import { sizes } from '../common/global'
 import Header from './presentational/Timeline/Header'
 import Axis from './TimelineAxis.jsx'
 import Clip from './presentational/Timeline/Clip'
@@ -70,10 +69,11 @@ class Timeline extends React.Component {
   addEventListeners () {
     window.addEventListener('resize', () => { this.computeDims() })
     let element = document.querySelector('.timeline-wrapper')
-    if (element !== null)
+    if (element !== null) {
       element.addEventListener('transitionend', (event) => {
         this.computeDims()
       })
+    }
   }
 
   makeScaleX () {
@@ -274,11 +274,14 @@ class Timeline extends React.Component {
   }
 
   getY (event) {
-    const { category, project } = event
     const { features, domain } = this.props
-    const { GRAPH_NONLOCATED } = features
+    const { USE_CATEGORIES, GRAPH_NONLOCATED } = features
+
+    if (!USE_CATEGORIES) { return this.state.dims.trackHeight / 2 }
+
+    const { category, project } = event
     if (GRAPH_NONLOCATED && GRAPH_NONLOCATED.categories.includes(category)) {
-      return this.state.dims.marginTop + domain.projects[project].offset + sizes.eventDotR
+      return this.state.dims.marginTop + domain.projects[project].offset + this.props.ui.eventRadius
     }
     return this.state.scaleY(category)
   }
@@ -334,7 +337,7 @@ class Timeline extends React.Component {
               />
               <Categories
                 dims={dims}
-                getCategoryY={this.state.scaleY}
+                getCategoryY={category => this.getY({ category, project: null })}
                 onDragStart={() => { this.onDragStart() }}
                 onDrag={() => { this.onDrag() }}
                 onDragEnd={() => { this.onDragEnd() }}
@@ -359,6 +362,7 @@ class Timeline extends React.Component {
                 transitionDuration={this.state.transitionDuration}
                 styles={this.props.ui.styles}
                 features={this.props.features}
+                eventRadius={this.props.ui.eventRadius}
               />
               <Events
                 events={this.props.domain.events}
@@ -380,6 +384,7 @@ class Timeline extends React.Component {
                 features={this.props.features}
                 setLoading={this.props.actions.setLoading}
                 setNotLoading={this.props.actions.setNotLoading}
+                eventRadius={this.props.ui.eventRadius}
               />
             </svg>
           </div>
@@ -407,7 +412,8 @@ function mapStateToProps (state) {
     },
     ui: {
       dom: state.ui.dom,
-      styles: state.ui.style.selectedEvents
+      styles: state.ui.style.selectedEvents,
+      eventRadius: state.ui.eventRadius
     },
     features: selectors.getFeatures(state)
   }

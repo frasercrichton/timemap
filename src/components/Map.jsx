@@ -139,7 +139,7 @@ class Map extends React.Component {
     const pane = this.map.getPanes().overlayPane
     const { width, height } = this.getClientDims()
 
-    return !!this.map ? (
+    return this.map ? (
       <Portal node={pane}>
         <svg
           ref={this.svgRef}
@@ -205,6 +205,7 @@ class Map extends React.Component {
     return (
       <Events
         svg={this.svgRef.current}
+        events={this.props.domain.events}
         locations={this.props.domain.locations}
         styleLocation={this.styleLocation}
         categories={this.props.domain.categories}
@@ -214,6 +215,7 @@ class Map extends React.Component {
         onSelect={this.props.methods.onSelect}
         onSelectNarrative={this.props.methods.onSelectNarrative}
         getCategoryColor={this.props.methods.getCategoryColor}
+        eventRadius={this.props.ui.eventRadius}
       />
     )
   }
@@ -285,7 +287,8 @@ function mapStateToProps (state) {
       dom: state.ui.dom,
       narratives: state.ui.style.narratives,
       mapSelectedEvents: state.ui.style.selectedEvents,
-      shapes: state.ui.style.shapes
+      shapes: state.ui.style.shapes,
+      eventRadius: state.ui.eventRadius
     },
     features: selectors.getFeatures(state)
   }

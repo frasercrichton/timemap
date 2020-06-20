@@ -28,9 +28,9 @@ class TimelineCategories extends React.Component {
     const { features, dims } = this.props
     const { category } = cat
     const strokeWidth = 1 // dims.trackHeight / (this.props.categories.length + 1)
-    if (features.GRAPH_NONLOCATED
-      && features.GRAPH_NONLOCATED.categories
-      && features.GRAPH_NONLOCATED.categories.includes(category)) {
+    if (features.GRAPH_NONLOCATED &&
+      features.GRAPH_NONLOCATED.categories &&
+      features.GRAPH_NONLOCATED.categories.includes(category)) {
       return null
     }
 
@@ -53,10 +53,13 @@ class TimelineCategories extends React.Component {
 
   render () {
     const { dims } = this.props
+    const categories = this.props.features.USE_CATEGORIES
+      ? this.props.categories.map((cat, idx) => this.renderCategory(cat, idx))
+      : this.renderCategory('Events', 0)
 
     return (
       <g class='yAxis'>
-        {this.props.categories.map((cat, idx) => this.renderCategory(cat, idx))}
+        {categories}
         <rect
           ref={this.grabRef}
           class='drag-grabber'
