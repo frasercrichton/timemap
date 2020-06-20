@@ -16,7 +16,7 @@ const initial = {
     categories: [],
     sources: {},
     sites: [],
-    tags: {},
+    filters: {},
     notifications: []
   },
 
@@ -40,7 +40,7 @@ const initial = {
       current: null
     },
     filters: {
-      tags: [],
+      filters: [],
       categories: [],
       views: {
         events: true,
@@ -127,13 +127,13 @@ const initial = {
       timeline: 'timeline',
       timeslider: 'timeslider',
       map: 'map'
-    }
+    },
+    eventRadius: 8
   },
 
   features: {
-    CATEGORIES_AS_TAGS: true,
     USE_COVER: false,
-    USE_TAGS: false,
+    USE_FILTERS: false,
     USE_SEARCH: false,
     USE_SITES: false,
     USE_SOURCES: false,

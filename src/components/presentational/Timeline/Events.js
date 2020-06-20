@@ -14,13 +14,9 @@ function renderDot (event, styles, props) {
     events={[event]}
     x={props.x}
     y={props.y}
-    r={sizes.eventDotR}
+    r={props.eventRadius}
     styleProps={styles}
   />
-}
-
-function renderBar (event, styles, props) {
-  const fillOpacity = props.features.GRAPH_NONLOCATED
     ? event.projectOffset >= 0 ? styles.opacity : 0.5
     : 0.6
 
@@ -37,12 +33,30 @@ function renderBar (event, styles, props) {
   />
 }
 
+function renderBar (event, styles, props) {
+  const fillOpacity = props.features.GRAPH_NONLOCATED
+    ? event.projectOffset >= 0 ? styles.opacity : 0.5
+    : calcOpacity(1)
+
+  return <DatetimeBar
+    onSelect={props.onSelect}
+    category={event.category}
+    events={[event]}
+    x={props.x}
+    y={props.dims.marginTop}
+    width={props.eventRadius / 4}
+    height={props.dims.trackHeight}
+    styleProps={{ ...styles, fillOpacity }}
+    highlights={props.highlights}
+  />
+}
+
 function renderDiamond (event, styles, props) {
   return <DatetimeSquare
     onSelect={props.onSelect}
     x={props.x}
     y={props.y}
-    r={1.8 * sizes.eventDotR}
+    r={1.8 * props.eventRadius}
     styleProps={styles}
   />
 }
@@ -52,7 +66,7 @@ function renderStar (event, styles, props) {
     onSelect={props.onSelect}
     x={props.x}
     y={props.y}
-    r={1.8 * sizes.eventDotR}
+    r={1.8 * props.eventRadius}
     styleProps={{ ...styles, fillRule: 'nonzero' }}
     transform='rotate(90)'
   />
@@ -71,7 +85,8 @@ const TimelineEvents = ({
   dims,
   features,
   setLoading,
-  setNotLoading
+  setNotLoading,
+  eventRadius
 }) => {
   const narIds = narrative ? narrative.steps.map(s => s.id) : []
 
@@ -107,9 +122,10 @@ const TimelineEvents = ({
     return renderShape(event, styles, {
       x: getDatetimeX(event.datetime),
       y: eventY,
+      eventRadius,
       onSelect: () => onSelect(event),
       dims,
-      highlights: features.HIGHLIGHT_GROUPS ? getHighlights(event.tags[features.HIGHLIGHT_GROUPS.tagIndexIndicatingGroup]) : [],
+      highlights: features.HIGHLIGHT_GROUPS ? getHighlights(event.filters[features.HIGHLIGHT_GROUPS.filterIndexIndicatingGroup]) : [],
       features
     })
   }
@@ -120,6 +136,7 @@ const TimelineEvents = ({
       return <React.Fragment>
         {Object.values(projects).map(project => <Project
           {...project}
+          eventRadius={eventRadius}
           onClick={() => console.log(project)}
           getX={getDatetimeX}
           dims={dims}

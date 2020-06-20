@@ -47,16 +47,22 @@ class TimelineCategories extends React.Component {
         <g class='tick' opacity='1' transform={`translate(0,${this.props.getCategoryY(category)})`}>
           <text x={dims.marginLeft - 5} dy='0.32em'>{category}</text>
         </g>
+        <g class='tick' opacity='1' transform={`translate(0,${this.props.getCategoryY(category)})`}>
+          <text x={dims.marginLeft - 5} dy='0.32em'>{category}</text>
+        </g>
       </React.Fragment>
     )
   }
 
   render () {
     const { dims } = this.props
+    const categories = this.props.features.USE_CATEGORIES
+      ? this.props.categories.map((cat, idx) => this.renderCategory(cat, idx))
+      : this.renderCategory('Events', 0)
 
     return (
       <g class='yAxis'>
-        {this.props.categories.map((cat, idx) => this.renderCategory(cat, idx))}
+        {categories}
         <rect
           ref={this.grabRef}
           class='drag-grabber'
