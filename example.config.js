@@ -21,7 +21,6 @@ module.exports = {
     ui: {
       style: {
         // tiles: 'your-mapbox-account-name/x5678-map-id'
-        // tiles: 'your-mapbox-account-name/x5678-map-id'
       }
     },
     features: {
