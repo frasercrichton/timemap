@@ -68,12 +68,12 @@ class TimelineAxis extends React.Component {
           clipPath={`url(#clip)`}
           className={`axis xAxis`}
         />
-        {<g
+        <g
           ref={this.xAxis1Ref}
           transform={`translate(0, ${this.props.dims.trackHeight + PADDING - 2 * (PADDING / 3)})`}
           clipPath={`url(#clip)`}
           className={`axis axisHourText`}
-        />}
+        />
       </React.Fragment>
     )
   }

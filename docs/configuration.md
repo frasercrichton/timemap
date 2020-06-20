@@ -120,3 +120,4 @@ a `config.js` file in timemap's root folder (explained in the next section).
 ]
 ```
 
+
