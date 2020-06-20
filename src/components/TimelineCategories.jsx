@@ -47,9 +47,6 @@ class TimelineCategories extends React.Component {
         <g class='tick' opacity='1' transform={`translate(0,${this.props.getCategoryY(category)})`}>
           <text x={dims.marginLeft - 5} dy='0.32em'>{category}</text>
         </g>
-        <g class='tick' opacity='1' transform={`translate(0,${this.props.getCategoryY(category)})`}>
-          <text x={dims.marginLeft - 5} dy='0.32em'>{category}</text>
-        </g>
       </React.Fragment>
     )
   }
