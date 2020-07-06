@@ -22,15 +22,16 @@ function renderBar (event, styles, props) {
   const fillOpacity = props.features.GRAPH_NONLOCATED
     ? event.projectOffset >= 0 ? styles.opacity : 0.5
     : calcOpacity(1)
-
+  const barWidth = (props.width) ? props.width : props.eventRadius / 4
+  const y = (props.width) ? props.y + (props.dims.marginTop * 2) - 1 : props.dims.marginTop
   return <DatetimeBar
     onSelect={props.onSelect}
     category={event.category}
     events={[event]}
     x={props.x}
-    y={props.dims.marginTop}
-    width={props.eventRadius / 4}
-    height={props.dims.trackHeight}
+    y={y}
+    width={barWidth}
+    height={110}
     styleProps={{ ...styles, fillOpacity }}
     highlights={props.highlights}
   />
@@ -95,7 +96,14 @@ const TimelineEvents = ({
         renderShape = renderDot
       }
     }
-
+    //rake
+    let width; 
+    if (event.time_type === 'duration') { 
+      renderShape = renderBar
+      const eventStartTime = getDatetimeX(event.start_datetime)
+      const eventEndTime = getDatetimeX(event.end_datetime)
+      width = eventEndTime - eventStartTime
+    }
     const eventY = getY(event)
     let colour = event.colour ? event.colour : getCategoryColor(event.category)
     const styles = {
@@ -105,6 +113,7 @@ const TimelineEvents = ({
     }
 
     return renderShape(event, styles, {
+      width: width,
       x: getDatetimeX(event.datetime),
       y: eventY,
       eventRadius,

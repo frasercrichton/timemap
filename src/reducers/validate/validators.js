@@ -153,6 +153,7 @@ export function validateDomain (domain) {
       type: 'error'
     })
   }
+
   sanitizedDomain.filters = domain.filters
 
   // append events with datetime and sort
@@ -183,6 +184,12 @@ export function validateDomain (domain) {
   // append events with datetime and sort
   sanitizedDomain.events.forEach(event => {
     event.datetime = calcDatetime(event.date, event.time)
+    // rake
+    if (event.time_type === 'duration') {
+      event.start_datetime = calcDatetime(event.date, event.start_time)
+      event.end_datetime = calcDatetime(event.end_date, event.end_time)
+      console.log(event.end_datetime)
+    }
   })
 
   sanitizedDomain.events.sort((a, b) => a.datetime - b.datetime)
