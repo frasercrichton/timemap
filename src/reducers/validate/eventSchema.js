@@ -23,7 +23,7 @@ const eventSchema = Joi.object().keys({
   end_date: Joi.string().allow(''),
   end_time: Joi.string().allow(''),
   time_type: Joi.string().allow(''),
-  
+
   // nested
   narrative___stepStyles: Joi.array(),
   shape: Joi.string().allow(''),

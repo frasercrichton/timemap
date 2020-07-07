@@ -96,9 +96,9 @@ const TimelineEvents = ({
         renderShape = renderDot
       }
     }
-    //rake
-    let width; 
-    if (event.time_type === 'duration') { 
+    // rake
+    let width
+    if (event.time_type === 'duration') {
       renderShape = renderBar
       const eventStartTime = getDatetimeX(event.start_datetime)
       const eventEndTime = getDatetimeX(event.end_datetime)

@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect'
 import { insetSourceFrom, dateMin, dateMax } from '../common/utilities'
 import { isTimeRangedIn } from './helpers'
-import { sizes } from '../common/global'
+// import { sizes } from '../common/global'
 
 // Input selectors
 export const getEvents = state => state.domain.events

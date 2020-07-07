@@ -15,7 +15,7 @@ import ZoomControls from './presentational/Timeline/ZoomControls.js'
 import Markers from './presentational/Timeline/Markers.js'
 import Events from './presentational/Timeline/Events.js'
 import Categories from './TimelineCategories.jsx'
-const TIMELINE_AXIS = 0
+// const TIMELINE_AXIS = 0
 
 class Timeline extends React.Component {
   constructor (props) {
