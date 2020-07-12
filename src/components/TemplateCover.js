@@ -145,6 +145,8 @@ class TemplateCover extends React.Component {
           }
 
           {this.props.cover.featureVideo ? this.renderFeature() : null}
+      
+          <div className='md-container' dangerouslySetInnerHTML={{ __html: marked(this.props.cover.description) }} />
           <div className='hero thin'>
             {
               this.props.cover.headerVideos ? this.renderHeaderVideos() : null
@@ -155,8 +157,6 @@ class TemplateCover extends React.Component {
               </div>
             </div>
           </div>
-
-          <div className='md-container' dangerouslySetInnerHTML={{ __html: marked(this.props.cover.description) }} />
 
           {videos ? (
             <div className='hero'>
