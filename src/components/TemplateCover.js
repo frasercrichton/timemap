@@ -119,7 +119,7 @@ class TemplateCover extends React.Component {
       <div className='default-cover-container'>
         <a className='cover-logo-container' href='https://forensic-architecture.org'>
           <img className='cover-logo' src={logo} />
-        </a>  
+        </a>
         <div className='cover-content'>
           {
             this.props.cover.bgVideo ? (
@@ -156,7 +156,7 @@ class TemplateCover extends React.Component {
             </div>
           </div>
 
-          <div className='md-container' dangerouslySetInnerHTML={{ __html: marked(this.props.cover.description) }} />      
+          <div className='md-container' dangerouslySetInnerHTML={{ __html: marked(this.props.cover.description) }} />
           {videos ? (
             <div className='hero'>
               <div className='row'>

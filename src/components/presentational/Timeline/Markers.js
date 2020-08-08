@@ -34,7 +34,7 @@ const TimelineMarkers = ({
     function renderBar () {
       // const barWidth = (props.width) ? props.width : props.eventRadius / 4
       // const y = (props.width) ? props.y + (props.dims.marginTop * 2) - 1 : props.dims.marginTop
-  
+
       return <rect
         className='timeline-marker'
         x={0}
