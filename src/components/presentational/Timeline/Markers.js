@@ -6,6 +6,7 @@ const TimelineMarkers = ({
   eventRadius,
   getEventX,
   getEventY,
+  getDatetimeX, 
   transitionDuration,
   selected,
   dims,
@@ -32,18 +33,26 @@ const TimelineMarkers = ({
       />
     }
     function renderBar () {
-      // const barWidth = (props.width) ? props.width : props.eventRadius / 4
-      // const y = (props.width) ? props.y + (props.dims.marginTop * 2) - 1 : props.dims.marginTop
-
+      let width
+      if (event.time_type === 'duration') {
+        event.shape = 'bar'
+        const eventStartTime = getDatetimeX(event.start_datetime)
+        const eventEndTime = getDatetimeX(event.end_datetime)
+        width = eventEndTime - eventStartTime
+      }
+      const barWidth = (width) ? width : eventRadius / 2
+      const y = (width) ? getEventY(event) + (dims.marginTop * 2) - 1 : dims.marginTop
+     // dims.contentHeight - 55
+      
       return <rect
         className='timeline-marker'
         x={0}
-        y={0}
-        width={eventRadius / 2}
-        height={dims.contentHeight - 55}
+        y={getEventY(event)}
+        width={barWidth}
+        height={112}
         stroke={styles ? styles.stroke : colors.primaryHighlight}
         stroke-opacity='1'
-        stroke-width={styles ? styles['stroke-width'] : 1}
+        stroke-width={styles ? styles['stroke-width'] : 4}
         stroke-dasharray={styles ? styles['stroke-dasharray'] : '2,2'}
         style={{
           'transform': `translate(${getEventX(event)}px)`,

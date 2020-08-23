@@ -359,6 +359,7 @@ class Timeline extends React.Component {
                 selected={this.props.app.selected}
                 getEventX={ev => this.getDatetimeX(ev.datetime)}
                 getEventY={this.getY}
+                getDatetimeX={this.getDatetimeX}
                 transitionDuration={this.state.transitionDuration}
                 styles={this.props.ui.styles}
                 features={this.props.features}

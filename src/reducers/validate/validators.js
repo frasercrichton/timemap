@@ -188,7 +188,6 @@ export function validateDomain (domain) {
     if (event.time_type === 'duration') {
       event.start_datetime = calcDatetime(event.date, event.start_time)
       event.end_datetime = calcDatetime(event.end_date, event.end_time)
-      console.log(event.end_datetime)
     }
   })
 

@@ -71,21 +71,39 @@ class Dashboard extends React.Component {
     )
   }
 
+  hasFilterPresent (event) {
+    let hasOne = false
+    // add event if it has at least one matching filter
+    const { app } = this.props
+    const activeFilters = app.filters.filters
+    for (let i = 0; i < activeFilters.length; i++) {
+      if (event.filters.includes(activeFilters[i])) {
+        hasOne = true
+        break
+      }
+    }
+    if (hasOne) {
+      return true
+    }
+    return false
+  }
+
   handleSelect (selected, axis) {
     const matchedEvents = []
     const TIMELINE_AXIS = 0
+
     if (axis === TIMELINE_AXIS) {
-      matchedEvents.push(selected)
-      // find in events
+      // matchedEvents.push(selected)
+
       const { events } = this.props.domain
-      const idx = this.findEventIdx(selected)
-      // check events before
+      const idx = this.findEventIdx(selected)  
       let ptr = idx - 1
 
       while (
         ptr >= 0 &&
         (events[idx].datetime).getTime() === (events[ptr].datetime).getTime()
       ) {
+        console.log('confuseed', events[idx].datetime)
         matchedEvents.push(events[ptr])
         ptr -= 1
       }
@@ -96,16 +114,28 @@ class Dashboard extends React.Component {
         ptr < events.length &&
         (events[idx].datetime).getTime() === (events[ptr].datetime).getTime()
       ) {
+   
         matchedEvents.push(events[ptr])
         ptr += 1
       }
+
+      console.log(matchedEvents)
+
     } else { // Map...
       const std = { ...selected }
       delete std.sources
       Object.values(std).forEach(ev => matchedEvents.push(ev))
     }
+    const { app } = this.props
+    if (app.filters.filters.length >= 1) {
+      const filteredEvents = matchedEvents.filter(evs => {
+        return this.hasFilterPresent(evs)
+      })
+      this.props.actions.updateSelected(filteredEvents)
+    } else {
+      this.props.actions.updateSelected(matchedEvents)    
+    }
 
-    this.props.actions.updateSelected(matchedEvents)
   }
 
   getCategoryColor (category) {
@@ -143,16 +173,7 @@ class Dashboard extends React.Component {
     }
 
     const evs = domain.events.filter(ev => {
-      let hasOne = false
-      // add event if it has at least one matching filter
-      for (let i = 0; i < activeFilters.length; i++) {
-        if (ev.filters.includes(activeFilters[i])) {
-          hasOne = true
-          break
-        }
-      }
-      if (hasOne) return true
-      return false
+      return this.hasFilterPresent(ev)
     })
 
     const name = activeFilters.join('-')

@@ -141,8 +141,9 @@ export const selectLocations = createSelector(
   [selectEvents],
   (events) => {
     const activeLocations = {}
+
     events.forEach(event => {
-      const location = event.location
+      const location = `${event.location}$_${event.latitude}_${event.longitude}`
 
       if (activeLocations[location]) {
         activeLocations[location].events.push(event)
