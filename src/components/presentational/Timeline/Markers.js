@@ -6,7 +6,7 @@ const TimelineMarkers = ({
   eventRadius,
   getEventX,
   getEventY,
-  getDatetimeX, 
+  getDatetimeX,
   transitionDuration,
   selected,
   dims,
@@ -40,10 +40,10 @@ const TimelineMarkers = ({
         const eventEndTime = getDatetimeX(event.end_datetime)
         width = eventEndTime - eventStartTime
       }
-      const barWidth = (width) ? width : eventRadius / 2
-      const y = (width) ? getEventY(event) + (dims.marginTop * 2) - 1 : dims.marginTop
-     // dims.contentHeight - 55
-      
+      const barWidth = (width) || eventRadius / 2
+      // const y = (width) ? getEventY(event) + (dims.marginTop * 2) - 1 : dims.marginTop
+      // dims.contentHeight - 55
+
       return <rect
         className='timeline-marker'
         x={0}

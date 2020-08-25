@@ -93,34 +93,23 @@ class Dashboard extends React.Component {
     const TIMELINE_AXIS = 0
 
     if (axis === TIMELINE_AXIS) {
-      // matchedEvents.push(selected)
-
       const { events } = this.props.domain
-      const idx = this.findEventIdx(selected)  
-      let ptr = idx - 1
-
-      while (
-        ptr >= 0 &&
-        (events[idx].datetime).getTime() === (events[ptr].datetime).getTime()
-      ) {
-        console.log('confuseed', events[idx].datetime)
-        matchedEvents.push(events[ptr])
-        ptr -= 1
-      }
-      // check events after
-      ptr = idx + 1
-
-      while (
-        ptr < events.length &&
-        (events[idx].datetime).getTime() === (events[ptr].datetime).getTime()
-      ) {
-   
-        matchedEvents.push(events[ptr])
-        ptr += 1
-      }
-
-      console.log(matchedEvents)
-
+      const idx = this.findEventIdx(selected)
+      const selectedEvent = events[idx]
+      const isCurfewEvent = selectedEvent.category === 'Curfew'
+      const selectedDate = selectedEvent.date
+      const selectedDateTime = (selectedEvent.datetime).getTime()
+      events.forEach(ev => {
+        if (isCurfewEvent) {
+          if (selectedDate === (ev.date)) {
+            matchedEvents.push(ev)
+          }
+        } else {
+          if (selectedDateTime === (ev.datetime).getTime()) {
+            matchedEvents.push(ev)
+          }
+        }
+      })
     } else { // Map...
       const std = { ...selected }
       delete std.sources
@@ -133,9 +122,8 @@ class Dashboard extends React.Component {
       })
       this.props.actions.updateSelected(filteredEvents)
     } else {
-      this.props.actions.updateSelected(matchedEvents)    
+      this.props.actions.updateSelected(matchedEvents)
     }
-
   }
 
   getCategoryColor (category) {
