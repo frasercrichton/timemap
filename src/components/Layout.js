@@ -19,7 +19,7 @@ import StaticPage from './StaticPage'
 import TemplateCover from './TemplateCover'
 
 import colors from '../common/global'
-import { binarySearch, insetSourceFrom } from '../common/utilities'
+import { binarySearch, insetSourceFrom, findDescriptionInFilterTree } from '../common/utilities'
 import { isMobile } from 'react-device-detect'
 
 class Dashboard extends React.Component {
@@ -30,22 +30,20 @@ class Dashboard extends React.Component {
     this.handleHighlight = this.handleHighlight.bind(this)
     this.setNarrative = this.setNarrative.bind(this)
     this.setNarrativeFromFilters = this.setNarrativeFromFilters.bind(this)
-    this.moveInNarrative = this.moveInNarrative.bind(this)
     this.handleSelect = this.handleSelect.bind(this)
     this.getCategoryColor = this.getCategoryColor.bind(this)
     this.findEventIdx = this.findEventIdx.bind(this)
     this.onKeyDown = this.onKeyDown.bind(this)
+    this.selectNarrativeStep = this.selectNarrativeStep.bind(this)
   }
 
   componentDidMount () {
     if (!this.props.app.isMobile) {
       this.props.actions.fetchDomain()
-        .then(domain => this.props.actions.updateDomain(domain))
-        .then(({ domain }) => {
-          if (domain.categories.length >= 4) {
-            this.props.actions.updateDimensions({ marginTop: 0 })
-          }
-        })
+        .then(domain => this.props.actions.updateDomain({
+          domain,
+          features: this.props.features
+        }))
     }
     // NOTE: hack to get the timeline to always show. Not entirely sure why
     // this is necessary.
@@ -135,18 +133,30 @@ class Dashboard extends React.Component {
 
   setNarrativeFromFilters (withSteps) {
     const { app, domain } = this.props
-    const activeFilters = app.filters.filters
+    let activeFilters = app.filters.filters
 
     if (activeFilters.length === 0) {
       alert('No filters selected, cant narrativise')
       return
     }
 
+    if (this.props.features.USE_FILTER_DESCRIPTIONS) {
+      activeFilters = activeFilters.reduce((acc, vl) => {
+        acc.push({
+          name: vl,
+          description: findDescriptionInFilterTree(vl, domain.filters)
+        })
+        return acc
+      }, [])
+    } else {
+      activeFilters = activeFilters.map(f => ({ name: f }))
+    }
+
     const evs = domain.events.filter(ev => {
       let hasOne = false
       // add event if it has at least one matching filter
       for (let i = 0; i < activeFilters.length; i++) {
-        if (ev.filters.includes(activeFilters[i])) {
+        if (ev.filters.includes(activeFilters[i].name)) {
           hasOne = true
           break
         }
@@ -155,28 +165,43 @@ class Dashboard extends React.Component {
       return false
     })
 
-    const name = activeFilters.join('-')
+    const name = activeFilters.map(f => f.name).join('-')
+    const desc = activeFilters.map(f => f.description).join('\n\n')
     this.setNarrative({
       id: name,
       label: name,
-      description: '',
+      description: desc,
       withLines: withSteps,
       steps: evs.map(insetSourceFrom(domain.sources))
     })
   }
 
-  moveInNarrative (amt) {
-    const { current } = this.props.app.narrativeState
+  selectNarrativeStep (idx) {
+    // Try to find idx if event passed rather than number
+    if (typeof idx !== 'number') {
+      let e = idx[0] || idx
+
+      if (this.props.app.narrative) {
+        const { steps } = this.props.app.narrative
+        // choose the first event at a given location
+        const locationEventId = e.id
+        const narrativeIdxObj = steps.find(s => s.id === locationEventId)
+        let narrativeIdx = steps.indexOf(narrativeIdxObj)
+
+        if (narrativeIdx > -1) {
+          idx = narrativeIdx
+        }
+      }
+    }
+
     const { narrative } = this.props.app
     if (narrative === null) return
 
-    if (amt === 1 && current < narrative.steps.length - 1) {
-      this.handleSelect([ narrative.steps[current + 1] ])
-      this.props.actions.incrementNarrativeCurrent()
-    }
-    if (amt === -1 && current > 0) {
-      this.handleSelect([ narrative.steps[current - 1] ])
-      this.props.actions.decrementNarrativeCurrent()
+    if (idx < narrative.steps.length && idx >= 0) {
+      const step = narrative.steps[idx]
+
+      this.handleSelect([step])
+      this.props.actions.updateNarrativeStepIdx(idx)
     }
   }
 
@@ -187,14 +212,14 @@ class Dashboard extends React.Component {
       if (narrative === null) {
         this.handleSelect(events[idx - 1], 0)
       } else {
-        this.moveInNarrative(-1)
+        this.selectNarrativeStep(this.props.app.narrativeState.current - 1)
       }
     }
     const next = idx => {
       if (narrative === null) {
         this.handleSelect(events[idx + 1], 0)
       } else {
-        this.moveInNarrative(1)
+        this.selectNarrativeStep(this.props.app.narrativeState.current + 1)
       }
     }
     if (selected.length > 0) {
@@ -202,10 +227,12 @@ class Dashboard extends React.Component {
       const idx = this.findEventIdx(ev)
       switch (e.keyCode) {
         case 37: // left arrow
+        case 38: // up arrow
           if (idx <= 0) return
           prev(idx)
           break
         case 39: // right arrow
+        case 40: // down arrow
           if (idx < 0 || idx >= this.props.domain.length - 1) return
           next(idx)
           break
@@ -249,15 +276,15 @@ class Dashboard extends React.Component {
         <Map
           onKeyDown={this.onKeyDown}
           methods={{
-            onSelect: ev => this.handleSelect(ev, 1),
             onSelectNarrative: this.setNarrative,
-            getCategoryColor: this.getCategoryColor
+            getCategoryColor: this.getCategoryColor,
+            onSelect: app.narrative ? this.selectNarrativeStep : ev => this.handleSelect(ev, 1)
           }}
         />
         <Timeline
           onKeyDown={this.onKeyDown}
           methods={{
-            onSelect: ev => this.handleSelect(ev, 0),
+            onSelect: app.narrative ? this.selectNarrativeStep : ev => this.handleSelect(ev, 0),
             onUpdateTimerange: actions.updateTimeRange,
             getCategoryColor: this.getCategoryColor
           }}
@@ -265,7 +292,7 @@ class Dashboard extends React.Component {
         <CardStack
           timelineDims={app.timeline.dimensions}
           onViewSource={this.handleViewSource}
-          onSelect={this.handleSelect}
+          onSelect={app.narrative ? this.selectNarrativeStep : this.handleSelect}
           onHighlight={this.handleHighlight}
           onToggleCardstack={() => actions.updateSelected([])}
           getNarrativeLinks={event => this.getNarrativeLinks(event)}
@@ -282,8 +309,8 @@ class Dashboard extends React.Component {
             current: app.narrativeState.current
           } : null}
           methods={{
-            onNext: () => this.moveInNarrative(1),
-            onPrev: () => this.moveInNarrative(-1),
+            onNext: () => this.selectNarrativeStep(this.props.app.narrativeState.current + 1),
+            onPrev: () => this.selectNarrativeStep(this.props.app.narrativeState.current - 1),
             onSelectNarrative: this.setNarrative
           }}
         />
@@ -308,6 +335,11 @@ class Dashboard extends React.Component {
             }
           />
         ) : null}
+        <LoadingOverlay
+          isLoading={app.loading || app.flags.isFetchingDomain}
+          ui={app.flags.isFetchingDomain}
+          language={app.language}
+        />
         {features.USE_COVER && (
           <StaticPage showing={app.flags.isCover}>
             {/* enable USE_COVER in config.js features, and customise your header */}
@@ -315,11 +347,6 @@ class Dashboard extends React.Component {
             <TemplateCover showing={app.flags.isCover} showAppHandler={actions.toggleCover} />
           </StaticPage>
         )}
-        <LoadingOverlay
-          isLoading={app.loading || app.flags.isFetchingDomain}
-          ui={app.flags.isFetchingDomain}
-          language={app.language}
-        />
       </div>
     )
   }

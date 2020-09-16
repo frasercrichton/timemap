@@ -12,7 +12,7 @@ export const sizes = {
 export default {
   fallbackEventColor: colors.fa_red,
   darkBackground: colors.black,
-  primaryHighlight: colors.yellow,
+  primaryHighlight: colors.fa_red,
   secondaryHighlight: colors.white,
   sizes
 }

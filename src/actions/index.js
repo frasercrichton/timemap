@@ -137,10 +137,10 @@ export function fetchError (message) {
 }
 
 export const UPDATE_DOMAIN = 'UPDATE_DOMAIN'
-export function updateDomain (domain) {
+export function updateDomain (payload) {
   return {
     type: UPDATE_DOMAIN,
-    domain
+    payload
   }
 }
 
@@ -246,17 +246,11 @@ export function updateNarrative (narrative) {
   }
 }
 
-export const INCREMENT_NARRATIVE_CURRENT = 'INCREMENT_NARRATIVE_CURRENT'
-export function incrementNarrativeCurrent () {
+export const UPDATE_NARRATIVE_STEP_IDX = 'UPDATE_NARRATIVE_STEP_IDX'
+export function updateNarrativeStepIdx (idx) {
   return {
-    type: INCREMENT_NARRATIVE_CURRENT
-  }
-}
-
-export const DECREMENT_NARRATIVE_CURRENT = 'DECREMENT_NARRATIVE_CURRENT'
-export function decrementNarrativeCurrent () {
-  return {
-    type: DECREMENT_NARRATIVE_CURRENT
+    type: UPDATE_NARRATIVE_STEP_IDX,
+    idx
   }
 }
 
