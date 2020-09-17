@@ -1,0 +1,10 @@
+steps:
+- name: node
+  id: 
+  entrypoint: npm
+  args: ['install']
+- name: node
+  entrypoint: npm
+  args: ['test']
+tags: ['forensic-architecture', 'timemap', 'project-name']
+
