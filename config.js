@@ -1,7 +1,7 @@
 module.exports = {
   title: 'example',
   display_title: 'example',
-  SERVER_ROOT: 'https://datasheet-server-dot-forensic-265906.appspot.com',
+  SERVER_ROOT: 'http://datasheet-server-dot-forensic-265906.appspot.com',
   EVENTS_EXT: '/api/timemap_data/export_events/deeprows',
   CATEGORIES_EXT: '/api/timemap_data/export_categories/rows',
   FILTERS_EXT: '/api/timemap_data/export_filters/tree',
