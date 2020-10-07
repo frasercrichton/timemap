@@ -9,7 +9,7 @@ module.exports = {
   NARRATIVE_EXT: '',
   SITES_EXT: '',
   SHAPES_EXT: '',
-  DATE_FMT: 'MM/DD/YYYY',
+  DATE_FMT: 'DD/MM/YYYY',
   TIME_FMT: 'hh:mm',
   // MAPBOX_TOKEN: 'pk.YOUR_MAPBOX_TOKEN',
   store: {
