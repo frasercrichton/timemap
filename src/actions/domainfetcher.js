@@ -1,5 +1,5 @@
 import serverRequestConfiguration from './serverRequestConfiguration'
-
+import { fetchResource } from './fetchResource'
 // TODO: relegate these URLs entirely to environment variables
 // const EVENT_DATA_URL = getUrlFromProcessEnv('EVENTS_EXT')
 // const ASSOCIATIONS_URL = urlFromEnv('ASSOCIATIONS_EXT')
@@ -7,28 +7,16 @@ import serverRequestConfiguration from './serverRequestConfiguration'
 // const SITES_URL = urlFromEnv('SITES_EXT')
 // const SHAPES_URL = urlFromEnv('SHAPES_EXT')
 
-// const EVENT_DATA_URL = ['http://localhost:4040/api/curfew/export_events/deeprows']
-// const SOURCES_URL = 'http://localhost:4040/api/curfew/export_sources/deeprows'
-// const ASSOCIATIONS_URL = 'http://localhost:4040/api/curfew/export_associations/deeprows'
-// const SITES_URL = 'http://localhost:4040/api/curfew/export_sites/deeprows'
-// const SHAPES_URL = 'http://localhost:4040/api/curfew/export_shapes/deeprows'
+const EVENT_DATA_URL = ['http://localhost:4040/api/curfew/export_events/deeprows']
+const SOURCES_URL = 'http://localhost:4040/api/curfew/export_sources/deeprows'
+const ASSOCIATIONS_URL = 'http://localhost:4040/api/curfew/export_associations/deeprows'
+const SITES_URL = 'http://localhost:4040/api/curfew/export_sites/deeprows'
+const SHAPES_URL = 'http://localhost:4040/api/curfew/export_shapes/deeprows'
+
 const configErrorMessage = (domain) => `USE_${domain} is true, but you have not provided a ${domain}_EXT`
 
-const fetchDomain = (features, urls) => {
-  // [featuretoggle : url || [] ]
-  const { USE_EVENTS, USE_ASSOCIATIONS, USE_SOURCES, USE_SITES, USE_SHAPES } = features
-
-  const config = serverRequestConfiguration(features)
-
-  const { EVENT_DATA_URL, SOURCES_URL, ASSOCIATIONS_URL, SITES_URL, SHAPES_URL } = urls
-
-  // const features = getState().features;
-  //     dispatch(toggleFetchingDomain());
-
+const fetchDomain = (features) => {
   const notifications = []
-
-  const requestErrorMessage = (url, domain, error) => `The url: ${url} for: '${domain}' returned a server error: ${error} this could be an incorrect url configuration or a server issue.`
-
   const handleError = (message) => {
     notifications.push({
       message,
@@ -36,6 +24,32 @@ const fetchDomain = (features, urls) => {
     })
     return Promise.resolve([])
   }
+
+  // [featuretoggle : url || [] ]
+  const { USE_EVENTS, USE_ASSOCIATIONS, USE_SOURCES, USE_SITES, USE_SHAPES } = features
+
+  // this needs to deal with missing features so validate against the supported features
+  const supportedFeatures = ['USE_EVENTS', 'USE_ASSOCIATIONS', 'USE_SOURCES', 'USE_SITES', 'USE_SHAPES']
+  const activeFeatures = ['USE_EVENTS', 'USE_ASSOCIATIONS', 'USE_SOURCES', 'USE_SITES', 'USE_SHAPES']
+  
+  // merge with active features
+
+  const { configuration, errors } = serverRequestConfiguration(activeFeatures)
+
+  // configuration
+
+  console.log([...notifications, ...errors])
+
+    console.log(notifications)
+
+  // const { EVENT_DATA_URL, SOURCES_URL, ASSOCIATIONS_URL, SITES_URL, SHAPES_URL } = urls
+
+  // const features = getState().features;
+  //     dispatch(toggleFetchingDomain());
+
+  const requestErrorMessage = (url, domain, error) => `The url: ${url} for: '${domain}' returned a server error: ${error} this could be an incorrect url configuration or a server issue.`
+
+  // const fetchUrl = (url, domain) => fetchResource(url, handleError(requestErrorMessage(url, domain)))
 
   // eslint-disable-next-line no-undef
   const fetchUrl = (url, domain) => fetch(url)
@@ -52,9 +66,6 @@ const fetchDomain = (features, urls) => {
   // dispatch, getState
   return () => {
     // dispatch(toggleFetchingDomain())
-    // thsi nees to deal with missing features
-
-    const supportedFeatures = ['USE_EVENTS', 'USE_ASSOCIATIONS', 'USE_SOURCES', 'USE_SITES', 'USE_SHAPES']
 
     // NB: EVENT_DATA_URL is a list, and so results are aggregated
     const eventPromise = Promise.all(
@@ -71,7 +82,7 @@ const fetchDomain = (features, urls) => {
         associationsPromise =
           handleError(configErrorMessage('ASSOCIATIONS'))
       } else {
-        associationsPromise = fetchUrl(ASSOCIATIONS_URL, 'associations')
+        associationsPromise = fetchUrl(configuration.ASSOCIATIONS_URL, 'associations')
       }
     }
 

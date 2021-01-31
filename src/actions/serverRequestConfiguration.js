@@ -30,11 +30,12 @@ const serverRequestConfiguration = (features) => {
   const configuration = {}
   features.forEach((item) => {
     try {
+      //TODO this is fragile!
       const lookup = item.split(prefix).pop()
       // handle arrays []
       // rename configlookup
       // const configItem = { [item]: { url: getUrlFromProcessEnv(`${lookup}${environmentVariableSuffix}`) } }
-      configuration[item] = { url: serverRequestVarsLookup(`${lookup}${environmentVariableSuffix}`) }
+      configuration[`${lookup}_URL`] = serverRequestVarsLookup(`${lookup}${environmentVariableSuffix}`) 
       return configuration
     } catch (error) {
       // if its a server error stop

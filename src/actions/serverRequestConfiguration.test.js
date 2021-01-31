@@ -24,19 +24,19 @@ describe('urlFromEnv : URL from environment variables', () => {
   const shapesUrl = '/api/shapes'
 
   const successResult = {
-    USE_ASSOCIATIONS: { url: `${serverRootUrl}${associationsUrl}` },
-    USE_EVENTS: { url: `${serverRootUrl}${eventsUrl}` },
-    USE_SHAPES: { url: `${serverRootUrl}${shapesUrl}` },
-    USE_SITES: { url: `${serverRootUrl}${sitesUrl}` },
-    USE_SOURCES: { url: `${serverRootUrl}${sourcesUrl}` }
+    ASSOCIATIONS_URL: `${serverRootUrl}${associationsUrl}`,
+    EVENTS_URL: `${serverRootUrl}${eventsUrl}`,
+    SHAPES_URL: `${serverRootUrl}${shapesUrl}`,
+    SITES_URL: `${serverRootUrl}${sitesUrl}`,
+    SOURCES_URL: `${serverRootUrl}${sourcesUrl}`
   }
 
   const successResultWithArray = {
-    USE_ASSOCIATIONS: { url: [`${serverRootUrl}${associationsUrl}`, `${serverRootUrl}${associationsUrl}`] },
-    USE_EVENTS: { url: [`${serverRootUrl}${eventsUrl}`, `${serverRootUrl}${eventsUrl}`] },
-    USE_SHAPES: { url: `${serverRootUrl}${shapesUrl}` },
-    USE_SITES: { url: `${serverRootUrl}${sitesUrl}` },
-    USE_SOURCES: { url: `${serverRootUrl}${sourcesUrl}` }
+    ASSOCIATIONS_URL: [`${serverRootUrl}${associationsUrl}`, `${serverRootUrl}${associationsUrl}`],
+    EVENTS_URL: [`${serverRootUrl}${eventsUrl}`, `${serverRootUrl}${eventsUrl}`],
+    SHAPES_URL: `${serverRootUrl}${shapesUrl}`,
+    SITES_URL: `${serverRootUrl}${sitesUrl}`,
+    SOURCES_URL: `${serverRootUrl}${sourcesUrl}`
   }
 
   it('Should successfully process configuration', () => {
@@ -89,7 +89,7 @@ describe('urlFromEnv : URL from environment variables', () => {
     const { configuration, errors } = serverRequestConfiguration(supportedFeatures)
     expect(errors.length).toEqual(1)
     expect(errors[0].message).toEqual(errorMessage)
-    delete successResult.USE_EVENTS
+    delete successResult.EVENTS_URL
     expect(configuration).toEqual(successResult)
   })
 
@@ -104,6 +104,7 @@ describe('urlFromEnv : URL from environment variables', () => {
     const { configuration, errors } = serverRequestConfiguration(supportedFeatures)
     expect(errors.length).toEqual(1)
     expect(errors[0].message).toEqual(errorMessage)
+    delete successResult.EVENTS_URL
     expect(configuration).toEqual(successResult)
   })
 

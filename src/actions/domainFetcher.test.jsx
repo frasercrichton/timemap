@@ -62,9 +62,13 @@ const urls = {
 describe('Fetch Domain: Selected Incidents', () => {
   beforeEach(() => {
     process.env = { ...OLD_ENV }
-
+    // should really mock this so we are only process.env in one place   
     process.env.SERVER_ROOT = 'http://localhost:4040'
-    process.env.EVENTS_EXT = '/api/curfew/export_events/deeprows'
+    process.env.EVENTS_EXT = ['api/curfew/export_events/deeprows']
+    process.env.ASSOCIATIONS_EXT = '/api/curfew/export_associations/deeprows'
+    process.env.SOURCES_EXT = 'api/curfew/export_sources/deeprows'
+    process.env.SITES_EXT = 'api/curfew/export_sites/deeprows'
+    process.env.SHAPES_EXT = 'api/curfew/export_shapes/deeprows'
 
     // jest.mock('./urlFromEnv', () => ({
     //   getUrlFromProcessEnv: jest.fn().mockImplementation(() => [process.env.SERVER_ROOT = 'http://localhost:4040'])
@@ -99,6 +103,25 @@ describe('Fetch Domain: Selected Incidents', () => {
     })
   })
 
+    it('Should return a successful populated domain', () => {
+    fetchMock.once(EVENT_DATA_URL, incidents, { overwriteRoutes: false })
+      .once(SOURCES_URL, sources, { overwriteRoutes: true })
+      .once(ASSOCIATIONS_URL, { associations: 'x' }, { overwriteRoutes: true })
+      .once(SITES_URL, sites, { overwriteRoutes: true })
+      .once(SHAPES_URL, shapes, { overwriteRoutes: true })
+process.env.ASSOCIATIONS_EXT = ''
+process.env.SHAPES_EXT = ''
+    return fetchDomain(features, urls, urls)().then(domain => {
+      expect(domain.notifications).toStrictEqual([])
+      expect(domain.events).toStrictEqual(incidents)
+      expect(domain.sources).toStrictEqual(sources)
+      expect(domain.associations).toStrictEqual({ associations: 'x' })
+      expect(domain.sites).toStrictEqual(sites)
+      expect(domain.shapes).toStrictEqual(shapes)
+    })
+  })
+
+  
   it('Should return an error for a missing events url', () => {
     fetchMock.once(EVENT_DATA_URL, incidents, { overwriteRoutes: false })
       .once(SOURCES_URL, sources, { overwriteRoutes: true })
