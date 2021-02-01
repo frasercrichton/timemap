@@ -12,14 +12,15 @@ import { serverRequestVarsLookup } from './serverRequestVarsLookup'
 // if a domain exists but hasn't been provided in features this all falls off a cliff
 
 /*
- If something generates an error then that feature does not get passed back 
+ If something generates an error then that feature does not get passed back
 */
 const serverRequestConfiguration = (features) => {
   const prefix = 'USE_'
   const environmentVariableSuffix = '_EXT'
-
+  const configuration = {}
   const errors = []
 
+  // TODO externalise
   const handleError = (message) => {
     errors.push({
       message,
@@ -27,20 +28,23 @@ const serverRequestConfiguration = (features) => {
     })
   }
 
-  const configuration = {}
+  if (!features || !Array.isArray(features) || features.length === 0) {
+    handleError('No features to return configuration for.')
+    return { configuration, errors }
+  }
+
   features.forEach((item) => {
     try {
-      //TODO this is fragile!
+      // TODO this is fragile!
       const lookup = item.split(prefix).pop()
       // handle arrays []
       // rename configlookup
       // const configItem = { [item]: { url: getUrlFromProcessEnv(`${lookup}${environmentVariableSuffix}`) } }
-      configuration[`${lookup}_URL`] = serverRequestVarsLookup(`${lookup}${environmentVariableSuffix}`) 
+      configuration[`${lookup}_URL`] = serverRequestVarsLookup(`${lookup}${environmentVariableSuffix}`)
       return configuration
     } catch (error) {
       // if its a server error stop
-      // console.log(error)
-      handleError(error.message)
+      handleError(`${item} is true, but ${error.message}`)
       return []
     }
   })

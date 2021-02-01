@@ -4,7 +4,7 @@ const OLD_ENV = process.env
 
 const supportedFeatures = ['USE_EVENTS', 'USE_ASSOCIATIONS', 'USE_SOURCES', 'USE_SITES', 'USE_SHAPES']
 
-const errorMessage = 'EVENTS_EXT was not found - are you sure you have defined it? e.g. EVENTS_EXT: \'/api/your-server/export_events/deeprows\'.'
+const errorMessage = 'USE_EVENTS is true, but EVENTS_EXT was not found - are you sure you have defined it? e.g. EVENTS_EXT: \'/api/your-server/export_events/deeprows\'.'
 describe('urlFromEnv : URL from environment variables', () => {
   beforeEach(() => {
     jest.resetModules()
@@ -65,6 +65,18 @@ describe('urlFromEnv : URL from environment variables', () => {
     expect(configuration).toEqual(successResultWithArray)
   })
 
+  it('Should validate that features have been passed', () => {
+    const { errors } = serverRequestConfiguration()
+    expect(errors.length).toEqual(1)
+    expect(errors[0].message).toEqual('No features to return configuration for.')
+  })
+
+  it('Should validate that features are an array', () => {
+    const { errors } = serverRequestConfiguration('FEATURE')
+    expect(errors.length).toEqual(1)
+    expect(errors[0].message).toEqual('No features to return configuration for.')
+  })
+
   it('Should report missing server address correctly', () => {
   //   process.env.SERVER_ROOT = serverRootUrl
     process.env.EVENTS_EXT = eventsUrl
@@ -73,10 +85,10 @@ describe('urlFromEnv : URL from environment variables', () => {
     process.env.SITES_EXT = sitesUrl
     process.env.SHAPES_EXT = shapesUrl
 
-    const { configuration, errors } = serverRequestConfiguration(supportedFeatures)
+    const { errors } = serverRequestConfiguration(supportedFeatures)
     // server root catastrophic error
     expect(errors.length).toEqual(5)
-    expect(errors[0].message).toEqual('The Dataserver url is missing - have you configured it correctly? e.g. SERVER_ROOT: http://localhost:8080.')
+    expect(errors[0].message).toEqual('USE_EVENTS is true, but The Dataserver url is missing - have you configured it correctly? e.g. SERVER_ROOT: http://localhost:8080.')
   })
 
   it('Should report missing environment variable', () => {
