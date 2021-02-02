@@ -42,9 +42,6 @@ const ASSOCIATIONS_URL = 'http://localhost:4040/api/curfew/export_associations/d
 const SITES_URL = 'http://localhost:4040/api/curfew/export_sites/deeprows'
 const SHAPES_URL = 'http://localhost:4040/api/curfew/export_shapes/deeprows'
 
-const shapesError = 'Something went wrong fetching shapes. Check the URL or try disabling them in the config file.'
-const configError = (domain) => `USE_${domain} is true, but you have not provided a ${domain}_EXT`
-
 const features = { USE_ASSOCIATIONS: true, USE_SOURCES: true, USE_SITES: true, USE_SHAPES: true }
 
 const errorMessage = (url, domain, error) => `The url: ${url} for: '${domain}' returned a server error: Error: ${error} this could be an incorrect url configuration or a server issue.`
