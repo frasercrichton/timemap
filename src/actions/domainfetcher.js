@@ -1,13 +1,12 @@
 import serverRequestConfiguration from './serverRequestConfiguration'
-import { fetchHttpResource } from './fetchHttpResource'
+import { httpResourceHelper } from './httpResourceHelper'
 
 // this needs to deal with missing features so validate against the supported features
 // const supportedFeatures = ['USE_EVENTS', 'USE_ASSOCIATIONS', 'USE_SOURCES', 'USE_SITES', 'USE_SHAPES']
 
-const fetchDomain = (features) => {
-  // const features = getState().features;
-  // dispatch(toggleFetchingDomain());
+const requestErrorMessage = (url, domain, error) => `The '${domain}' returned ${error.message}`
 
+const fetchDomain = (features) => {
   const { USE_ASSOCIATIONS, USE_SOURCES, USE_SITES, USE_SHAPES } = features
 
   const activeFeatures = ['USE_EVENTS', 'USE_SOURCES', 'USE_ASSOCIATIONS', 'USE_SITES', 'USE_SHAPES']
@@ -18,18 +17,15 @@ const fetchDomain = (features) => {
   const { SOURCES_URL, ASSOCIATIONS_URL, SHAPES_URL, SITES_URL } = configuration
 
   const notifications = [...errors]
-
+  // if there are errors don't go any further
   const handleError = (message) => {
     notifications.push({
       message,
       type: 'error'
     })
-    return Promise.resolve([])
   }
 
-  const requestErrorMessage = (url, domain, error) => `The '${domain}' HTTP request returned ${error}`
-
-  const fetchUrl = (url, domain) => fetchHttpResource(url, (error) => handleError(requestErrorMessage(url, domain, error)))
+  const fetchDomainHttpResource = (url, domain) => httpResourceHelper(url, (error) => handleError(requestErrorMessage(url, domain, error)), [])
 
   return () => {
     // dispatch(toggleFetchingDomain())
@@ -37,50 +33,49 @@ const fetchDomain = (features) => {
     const EVENT_DATA_URL = ['http://localhost:4040/api/curfew/export_events/deeprows']
 
     // NB: EVENT_DATA_URL is a list, and so results are aggregated
-    const eventPromise = Promise.all(
-      // error check for url
+    const eventsPromise = Promise.all(
       EVENT_DATA_URL.map((url) =>
-      //   configErrorMessage('EVENTS')
-        fetchUrl(url, 'EVENTS_URL')
+        fetchDomainHttpResource(url, 'EVENTS_URL')
       )
     ).then((results) => results.flatMap((event) => event))
 
     let associationsPromise = Promise.resolve([])
     if (USE_ASSOCIATIONS) {
       if (ASSOCIATIONS_URL) {
-        associationsPromise = fetchUrl(ASSOCIATIONS_URL, 'ASSOCIATIONS_URL')
+        associationsPromise = fetchDomainHttpResource(ASSOCIATIONS_URL, 'ASSOCIATIONS_URL')
       }
     }
 
     let sourcesPromise = Promise.resolve([])
     if (USE_SOURCES) {
       if (SOURCES_URL) {
-        sourcesPromise = fetchUrl(SOURCES_URL, 'SOURCES_URL')
+        sourcesPromise = fetchDomainHttpResource(SOURCES_URL, 'SOURCES_URL')
       }
     }
 
     let sitesPromise = Promise.resolve([])
     if (USE_SITES) {
       if (SITES_URL) {
-        sitesPromise = fetchUrl(SITES_URL, 'SITES_URL')
+        sitesPromise = fetchDomainHttpResource(SITES_URL, 'SITES_URL')
       }
     }
 
     let shapesPromise = Promise.resolve([])
     if (USE_SHAPES) {
       if (SHAPES_URL) {
-        shapesPromise = fetchUrl(SHAPES_URL, 'SHAPES_URL')
+        shapesPromise = fetchDomainHttpResource(SHAPES_URL, 'SHAPES_URL')
       }
     }
 
     return Promise.all([
-      eventPromise,
+      eventsPromise,
       associationsPromise,
       sourcesPromise,
       sitesPromise,
       shapesPromise
     ])
       .then((response) => {
+        // no magic numbers
         const result = {
           events: response[0],
           associations: response[1],
@@ -90,8 +85,8 @@ const fetchDomain = (features) => {
           notifications
         }
         // eslint-disable-next-line no-prototype-builtins
-    
-        // don't do this!
+
+        // console.log(notifications)
         // const hasErrors = Object.values(result).some((resp) => {
         //  // console.log(notifications)
         //   // console.log(resp)

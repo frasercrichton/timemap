@@ -41,28 +41,28 @@ const ASSOCIATIONS_URL = 'http://localhost:4040/api/curfew/export_associations/d
 const SITES_URL = 'http://localhost:4040/api/curfew/export_sites/deeprows'
 const SHAPES_URL = 'http://localhost:4040/api/curfew/export_shapes/deeprows'
 
-const configurationError = (domain) => `USE_${domain} is true, but ${domain}_EXT was not found - are you sure you have defined it? e.g. EVENTS_EXT: '/api/your-server/export_events/deeprows'.`
+const configurationErrorExpected = (domain) => `USE_${domain} is true, but REACT_APP_${domain}_EXT was not found - are you sure you have defined it? e.g. EVENTS_EXT: '/api/your-server/export_events/deeprows'.`
 
 const features = { USE_ASSOCIATIONS: true, USE_SOURCES: true, USE_SITES: true, USE_SHAPES: true }
 
-const errorMessage = (domain, error) => `The '${domain}' HTTP request returned ${error}`
-
 const OLD_ENV = process.env
 
-const httpError = (url) => `Error: Not Found, HTTP status: 404 for URL: ${url} - this could be an incorrect url.`
+const expectedHttpError = (domain, url) => `The '${domain}' returned Error Message: The resource 'deeprows' does not exist in the tab 'export_sources' in this sheet. Status: Not Found, Status code: 404 for URL: ${url} - this could be an incorrect url.`
 
-const httpServerError = (url) => `Error: Server error Not found, for URL: ${url} - is the server running at that url address?`
+const expectedServerError = (domain, url) => `The '${domain}' returned Status: server error Not found, for URL: ${url} - is the server running?`
+
+const serverErrorBody = { error: "The resource 'deeprows' does not exist in the tab 'export_sources' in this sheet." }
 
 describe('Fetch Domain: call dataserver for domain', () => {
   beforeEach(() => {
     process.env = { ...OLD_ENV }
     // should really mock this so we are only process.env in one place
-    process.env.SERVER_ROOT = 'http://localhost:4040'
-    process.env.EVENTS_EXT = ['/api/curfew/export_events/deeprows']
-    process.env.ASSOCIATIONS_EXT = '/api/curfew/export_associations/deeprows'
-    process.env.SOURCES_EXT = '/api/curfew/export_sources/deeprows'
-    process.env.SITES_EXT = '/api/curfew/export_sites/deeprows'
-    process.env.SHAPES_EXT = '/api/curfew/export_shapes/deeprows'
+    process.env.REACT_APP_SERVER_ROOT = 'http://localhost:4040'
+    process.env.REACT_APP_EVENTS_EXT = ['/api/curfew/export_events/deeprows']
+    process.env.REACT_APP_ASSOCIATIONS_EXT = '/api/curfew/export_associations/deeprows'
+    process.env.REACT_APP_SOURCES_EXT = '/api/curfew/export_sources/deeprows'
+    process.env.REACT_APP_SITES_EXT = '/api/curfew/export_sites/deeprows'
+    process.env.REACT_APP_SHAPES_EXT = '/api/curfew/export_shapes/deeprows'
 
     // jest.mock('./urlFromEnv', () => ({
     //   getUrlFromProcessEnv: jest.fn().mockImplementation(() => [process.env.SERVER_ROOT = 'http://localhost:4040'])
@@ -122,11 +122,11 @@ describe('Fetch Domain: call dataserver for domain', () => {
       .once(SITES_URL, sites, { overwriteRoutes: true })
       .once(SHAPES_URL, shapes, { overwriteRoutes: true })
 
-    delete process.env.SOURCES_EXT
+    delete process.env.REACT_APP_SOURCES_EXT
 
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
-      expect(domain.notifications[0].message).toEqual(configurationError('SOURCES'))
+      expect(domain.notifications[0].message).toEqual(configurationErrorExpected('SOURCES'))
       expect(domain.sources).toStrictEqual([])
     })
   })
@@ -138,11 +138,11 @@ describe('Fetch Domain: call dataserver for domain', () => {
       .once(SITES_URL, sites, { overwriteRoutes: true })
       .once(SHAPES_URL, shapes, { overwriteRoutes: true })
 
-    delete process.env.SITES_EXT
+    delete process.env.REACT_APP_SITES_EXT
 
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
-      expect(domain.notifications[0].message).toEqual(configurationError('SITES'))
+      expect(domain.notifications[0].message).toEqual(configurationErrorExpected('SITES'))
       expect(domain.sites).toStrictEqual([])
     })
   })
@@ -154,11 +154,11 @@ describe('Fetch Domain: call dataserver for domain', () => {
       .once(SITES_URL, sites, { overwriteRoutes: true })
       .once(SHAPES_URL, shapes, { overwriteRoutes: true })
 
-    delete process.env.SHAPES_EXT
+    delete process.env.REACT_APP_SHAPES_EXT
 
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
-      expect(domain.notifications[0].message).toEqual(configurationError('SHAPES'))
+      expect(domain.notifications[0].message).toEqual(configurationErrorExpected('SHAPES'))
       expect(domain.shapes).toStrictEqual([])
     })
   })
@@ -169,16 +169,17 @@ describe('Fetch Domain: call dataserver for domain', () => {
       .once(ASSOCIATIONS_URL, { associations: 'x' }, { overwriteRoutes: true })
       .once(SITES_URL, sites, { overwriteRoutes: true })
       .once(SHAPES_URL, shapes, { overwriteRoutes: true })
-    delete process.env.ASSOCIATIONS_EXT
+
+    delete process.env.REACT_APP_ASSOCIATIONS_EXT
 
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
-      expect(domain.notifications[0].message).toEqual(configurationError('ASSOCIATIONS'))
+      expect(domain.notifications[0].message).toEqual(configurationErrorExpected('ASSOCIATIONS'))
       expect(domain.associations).toStrictEqual([])
     })
   })
 
-  it('Should not return the associations feature', () => {
+  it('Should not return a feature that has not been defined', () => {
     fetchMock.once(EVENT_DATA_URL, incidents, { overwriteRoutes: false })
       .once(SOURCES_URL, sources, { overwriteRoutes: true })
       .once(ASSOCIATIONS_URL, { associations: 'x' }, { overwriteRoutes: true })
@@ -189,11 +190,7 @@ describe('Fetch Domain: call dataserver for domain', () => {
 
     return fetchDomain(missingFeatures)().then(domain => {
       expect(domain.notifications).toStrictEqual([])
-      expect(domain.events).toStrictEqual(incidents)
-      expect(domain.sources).toStrictEqual(sources)
       expect(domain.associations).toStrictEqual([])
-      expect(domain.sites).toStrictEqual(sites)
-      expect(domain.shapes).toStrictEqual(shapes)
     })
   })
 
@@ -264,7 +261,7 @@ describe('Fetch Domain: call dataserver for domain', () => {
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
       expect(domain.notifications[0].message)
-        .toStrictEqual(errorMessage('EVENTS_URL', httpServerError('http://localhost:4040/api/curfew/export_events/deeprows')))
+        .toStrictEqual(expectedServerError('EVENTS_URL', 'http://localhost:4040/api/curfew/export_events/deeprows'))
       expect(domain.notifications[0].type).toStrictEqual('error')
       expect(domain.events).toStrictEqual([])
     })
@@ -280,7 +277,7 @@ describe('Fetch Domain: call dataserver for domain', () => {
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
       expect(domain.notifications[0].message)
-        .toStrictEqual(errorMessage('SOURCES_URL', httpServerError('http://localhost:4040/api/curfew/export_sources/deeprows')))
+        .toStrictEqual(expectedServerError('SOURCES_URL', 'http://localhost:4040/api/curfew/export_sources/deeprows'))
       expect(domain.notifications[0].type).toStrictEqual('error')
       expect(domain.sources).toStrictEqual([])
     })
@@ -296,7 +293,7 @@ describe('Fetch Domain: call dataserver for domain', () => {
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
       expect(domain.notifications[0].message)
-        .toStrictEqual(errorMessage('ASSOCIATIONS_URL', httpServerError('http://localhost:4040/api/curfew/export_associations/deeprows')))
+        .toStrictEqual(expectedServerError('ASSOCIATIONS_URL', 'http://localhost:4040/api/curfew/export_associations/deeprows'))
       expect(domain.notifications[0].type).toStrictEqual('error')
       expect(domain.associations).toStrictEqual([])
     })
@@ -311,13 +308,13 @@ describe('Fetch Domain: call dataserver for domain', () => {
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
       expect(domain.notifications[0].message)
-        .toStrictEqual(errorMessage('SITES_URL', httpServerError('http://localhost:4040/api/curfew/export_sites/deeprows')))
+        .toStrictEqual(expectedServerError('SITES_URL', 'http://localhost:4040/api/curfew/export_sites/deeprows'))
       expect(domain.notifications[0].type).toStrictEqual('error')
       expect(domain.sites).toStrictEqual([])
     })
   })
 
-  it('Should report error for shapes', () => {
+  it('Should report server error for shapes', () => {
     fetchMock.once(EVENT_DATA_URL, incidents, { overwriteRoutes: false })
       .once(SOURCES_URL, sources, { overwriteRoutes: true })
       .once(ASSOCIATIONS_URL, { associations: 'x' }, { overwriteRoutes: true })
@@ -327,14 +324,34 @@ describe('Fetch Domain: call dataserver for domain', () => {
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
       expect(domain.notifications[0].message)
-        .toStrictEqual(errorMessage('SHAPES_URL', httpServerError('http://localhost:4040/api/curfew/export_shapes/deeprows')))
+        .toStrictEqual(expectedServerError('SHAPES_URL', 'http://localhost:4040/api/curfew/export_shapes/deeprows'))
       expect(domain.notifications[0].type).toStrictEqual('error')
       expect(domain.shapes).toStrictEqual([])
     })
   })
 
+  it('Should report server error for multiple endpoints', () => {
+    fetchMock.once(EVENT_DATA_URL, incidents, { overwriteRoutes: false })
+      .once(SOURCES_URL, sources, { overwriteRoutes: true })
+      .once(ASSOCIATIONS_URL, { throws: Error('Not found') }, { overwriteRoutes: true })
+      .once(SITES_URL, sites, { overwriteRoutes: true })
+      .once(SHAPES_URL, { throws: Error('Not found') }, { overwriteRoutes: true })
+
+    return fetchDomain(features)().then(domain => {
+      expect(domain.notifications.length).toEqual(2)
+      expect(domain.notifications[0].message)
+        .toStrictEqual(expectedServerError('ASSOCIATIONS_URL', 'http://localhost:4040/api/curfew/export_associations/deeprows'))
+      expect(domain.notifications[0].type).toStrictEqual('error')
+      expect(domain.associations).toStrictEqual([])
+      expect(domain.notifications[1].message)
+        .toStrictEqual(expectedServerError('SHAPES_URL', 'http://localhost:4040/api/curfew/export_shapes/deeprows'))
+      expect(domain.notifications[1].type).toStrictEqual('error')
+      expect(domain.shapes).toStrictEqual([])
+    })
+  })
+
   it('Should report 404 error for events', () => {
-    fetchMock.once(EVENT_DATA_URL, { body: '{}', status: 404 }, { overwriteRoutes: false })
+    fetchMock.once(EVENT_DATA_URL, { body: serverErrorBody, status: 404 }, { overwriteRoutes: false })
       .once(SOURCES_URL, sources, { overwriteRoutes: true })
       .once(ASSOCIATIONS_URL, { associations: 'x' }, { overwriteRoutes: true })
       .once(SITES_URL, sites, { overwriteRoutes: true })
@@ -343,15 +360,15 @@ describe('Fetch Domain: call dataserver for domain', () => {
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
       expect(domain.notifications[0].message.toString()).toEqual(
-        errorMessage('EVENTS_URL', httpError('http://localhost:4040/api/curfew/export_events/deeprows')))
+        expectedHttpError('EVENTS_URL', 'http://localhost:4040/api/curfew/export_events/deeprows'))
       expect(domain.notifications[0].type).toEqual('error')
-      expect(domain.events).toStrictEqual([])
+      expect(domain.events).toEqual([serverErrorBody])
     })
   })
 
   it('Should report 404 error for sources', () => {
     fetchMock.once(EVENT_DATA_URL, incidents, { overwriteRoutes: false })
-      .once(SOURCES_URL, { body: '{}', status: 404 }, { overwriteRoutes: true })
+      .once(SOURCES_URL, { body: serverErrorBody, status: 404 }, { overwriteRoutes: true })
       .once(ASSOCIATIONS_URL, { associations: 'x' }, { overwriteRoutes: true })
       .once(SITES_URL, sites, { overwriteRoutes: true })
       .once(SHAPES_URL, shapes, { overwriteRoutes: true })
@@ -359,27 +376,25 @@ describe('Fetch Domain: call dataserver for domain', () => {
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
       expect(domain.notifications[0].message.toString()).toEqual(
-        errorMessage(
-          'SOURCES_URL',
-          httpError('http://localhost:4040/api/curfew/export_sources/deeprows')))
+        expectedHttpError('SOURCES_URL', 'http://localhost:4040/api/curfew/export_sources/deeprows'))
       expect(domain.notifications[0].type).toEqual('error')
-      expect(domain.sources).toStrictEqual([])
+      expect(domain.sources).toStrictEqual(serverErrorBody)
     })
   })
 
   it('Should report 404 error for associations', () => {
     fetchMock.once(EVENT_DATA_URL, incidents, { overwriteRoutes: false })
       .once(SOURCES_URL, sources, { overwriteRoutes: true })
-      .once(ASSOCIATIONS_URL, { body: '{}', status: 404 }, { overwriteRoutes: true })
+      .once(ASSOCIATIONS_URL, { body: serverErrorBody, status: 404 }, { overwriteRoutes: true })
       .once(SITES_URL, sites, { overwriteRoutes: true })
       .once(SHAPES_URL, shapes, { overwriteRoutes: true })
 
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
       expect(domain.notifications[0].message.toString()).toEqual(
-        errorMessage('ASSOCIATIONS_URL', httpError('http://localhost:4040/api/curfew/export_associations/deeprows')))
+        expectedHttpError('ASSOCIATIONS_URL', 'http://localhost:4040/api/curfew/export_associations/deeprows'))
       expect(domain.notifications[0].type).toEqual('error')
-      expect(domain.associations).toStrictEqual([])
+      expect(domain.associations).toStrictEqual(serverErrorBody)
     })
   })
 
@@ -387,15 +402,15 @@ describe('Fetch Domain: call dataserver for domain', () => {
     fetchMock.once(EVENT_DATA_URL, incidents, { overwriteRoutes: false })
       .once(SOURCES_URL, sources, { overwriteRoutes: true })
       .once(ASSOCIATIONS_URL, { associations: 'x' }, { overwriteRoutes: true })
-      .once(SITES_URL, { body: '{}', status: 404 }, { overwriteRoutes: true })
+      .once(SITES_URL, { body: serverErrorBody, status: 404 }, { overwriteRoutes: true })
       .once(SHAPES_URL, shapes, { overwriteRoutes: true })
 
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
       expect(domain.notifications[0].message.toString()).toEqual(
-        errorMessage('SITES_URL', httpError('http://localhost:4040/api/curfew/export_sites/deeprows')))
+        expectedHttpError('SITES_URL', 'http://localhost:4040/api/curfew/export_sites/deeprows'))
       expect(domain.notifications[0].type).toEqual('error')
-      expect(domain.sites).toStrictEqual([])
+      expect(domain.sites).toStrictEqual(serverErrorBody)
     })
   })
 
@@ -404,16 +419,37 @@ describe('Fetch Domain: call dataserver for domain', () => {
       .once(SOURCES_URL, sources, { overwriteRoutes: true })
       .once(ASSOCIATIONS_URL, { associations: 'x' }, { overwriteRoutes: true })
       .once(SITES_URL, sites, { overwriteRoutes: true })
-      .once(SHAPES_URL, { body: '{}', status: 404 }, { overwriteRoutes: true })
+      .once(SHAPES_URL, { body: serverErrorBody, status: 404 }, { overwriteRoutes: true })
 
     return fetchDomain(features)().then(domain => {
       expect(domain.notifications.length).toEqual(1)
       expect(domain.notifications[0].message.toString()).toEqual(
-        errorMessage('SHAPES_URL', httpError('http://localhost:4040/api/curfew/export_shapes/deeprows')))
+        expectedHttpError('SHAPES_URL', 'http://localhost:4040/api/curfew/export_shapes/deeprows'))
       expect(domain.notifications[0].type).toEqual('error')
-      expect(domain.shapes).toStrictEqual([])
+      expect(domain.shapes).toStrictEqual(serverErrorBody)
     })
   })
+
+  it('Should report 404 error for multiple errors', () => {
+    fetchMock.once(EVENT_DATA_URL, incidents, { overwriteRoutes: false })
+      .once(SOURCES_URL, sources, { overwriteRoutes: true })
+      .once(ASSOCIATIONS_URL, { body: serverErrorBody, status: 404 }, { overwriteRoutes: true })
+      .once(SITES_URL, sites, { overwriteRoutes: true })
+      .once(SHAPES_URL, { body: serverErrorBody, status: 404 }, { overwriteRoutes: true })
+
+    return fetchDomain(features)().then(domain => {
+      expect(domain.notifications.length).toEqual(2)
+      expect(domain.notifications[0].message.toString()).toEqual(
+        expectedHttpError('ASSOCIATIONS_URL', 'http://localhost:4040/api/curfew/export_associations/deeprows'))
+      expect(domain.notifications[0].type).toEqual('error')
+      expect(domain.notifications[1].message.toString()).toEqual(
+        expectedHttpError('SHAPES_URL', 'http://localhost:4040/api/curfew/export_shapes/deeprows'))
+      expect(domain.notifications[1].type).toEqual('error')
+      expect(domain.associations).toStrictEqual(serverErrorBody)
+      expect(domain.shapes).toStrictEqual(serverErrorBody)
+    })
+  })
+
   //  it('Should report 404 error for multiple errors', () => {
 
   //  it('Should work with multiple event arrays', () => {

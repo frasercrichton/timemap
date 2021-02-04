@@ -1,4 +1,4 @@
-import { serverRequestVarsLookup } from './serverRequestVarsLookup'
+import { envVarsLookup } from './envVarsLookup'
 
 // validate urls
 // thsi naming is really messy: USE_EVENTS, EVENTS_EXT, EVENT_DATA_URL, SOURCES_URL
@@ -11,6 +11,7 @@ import { serverRequestVarsLookup } from './serverRequestVarsLookup'
 const serverRequestConfiguration = (features) => {
   const prefix = 'USE_'
   const environmentVariableSuffix = '_EXT'
+  const REACT_APP = 'REACT_APP_'
   const configuration = {}
   const errors = []
 
@@ -33,7 +34,7 @@ const serverRequestConfiguration = (features) => {
       const lookup = item.split(prefix).pop()
       // handle arrays []
       // rename configlookup
-      configuration[`${lookup}_URL`] = serverRequestVarsLookup(`${lookup}${environmentVariableSuffix}`)
+      configuration[`${lookup}_URL`] = envVarsLookup(`${REACT_APP}${lookup}${environmentVariableSuffix}`)
       return configuration
     } catch (error) {
       // if its a server error stop
